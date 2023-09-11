@@ -1,5 +1,5 @@
 * rev.1: 2023-09-11 (Mon)
-* Draft: 
+* Draft: 2023-02-05 (Sun)
 
 # Create a Network
 For details, refer to Vertex AI > Doc. > Vertex AI Workbench > Guides > [Set up a network](https://cloud.google.com/vertex-ai/docs/workbench/managed/networking)
