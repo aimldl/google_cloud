@@ -13,6 +13,8 @@ export NETWORK=default-vpc-${PROJECT_ID}
 gcloud compute networks create $NETWORK --project $PROJECT_ID --subnet-mode=custom --mtu=1460 --bgp-routing-mode=regional
 ```
 
+The output looks like below.
+
 ```bash
 Created [https://www.googleapis.com/compute/v1/projects/vertex-workbench-notebook/global/networks/default-vpc-vertex-workbench-notebook].
 NAME: default-vpc-vertex-workbench-notebook
@@ -46,6 +48,8 @@ gcloud compute networks subnets create $SUBNET \
 --network=$NETWORK \
 --region=$REGION
 ```
+
+The output looks like below.
 
 ```bash
 Created [https://www.googleapis.com/compute/v1/projects/vertex-workbench-notebook/regions/us-central1/subnetworks/default-subnet-vertex-workbench-notebook].
