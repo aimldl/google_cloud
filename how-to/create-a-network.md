@@ -28,7 +28,9 @@ instances as well as SSH, RDP, and ICMP by running:
 $ gcloud compute firewall-rules create <FIREWALL_NAME> --network default-vpc-vertex-workbench-notebook --allow tcp,udp,icmp --source-ranges <IP_RANGE>
 $ gcloud compute firewall-rules create <FIREWALL_NAME> --network default-vpc-vertex-workbench-notebook --allow tcp:22,tcp:3389,icmp
 ```
+
 # Create a subnet
+
 ```bash
 export PROJECT_ID=$(gcloud config list --format 'value(core.project)')
 export SUBNET=default-subnet-${PROJECT_ID}
@@ -43,5 +45,9 @@ gcloud compute networks subnets create $SUBNET \
 --region=$REGION
 ```
 
+```
 #export ZONE=a
 #export LOCATION=${REGION}-${ZONE}
+```
+
+```
