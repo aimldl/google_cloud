@@ -27,6 +27,8 @@ instances as well as SSH, RDP, and ICMP by running:
 
 $ gcloud compute firewall-rules create <FIREWALL_NAME> --network default-vpc-vertex-workbench-notebook --allow tcp,udp,icmp --source-ranges <IP_RANGE>
 $ gcloud compute firewall-rules create <FIREWALL_NAME> --network default-vpc-vertex-workbench-notebook --allow tcp:22,tcp:3389,icmp
+
+$
 ```
 
 # Create a subnet
