@@ -2,7 +2,7 @@
 * Draft: 
 
 # Create a Network
-Vertex AI > Doc. > Vertex AI Workbench > Guides > [Set up a network](https://cloud.google.com/vertex-ai/docs/workbench/managed/networking)
+For details, refer to Vertex AI > Doc. > Vertex AI Workbench > Guides > [Set up a network](https://cloud.google.com/vertex-ai/docs/workbench/managed/networking)
 
 Open Cloud Shell and run:
 ```bash
@@ -47,9 +47,20 @@ gcloud compute networks subnets create $SUBNET \
 --region=$REGION
 ```
 
+```bash
+Created [https://www.googleapis.com/compute/v1/projects/vertex-workbench-notebook/regions/us-central1/subnetworks/default-subnet-vertex-workbench-notebook].
+NAME: default-subnet-vertex-workbench-notebook
+REGION: us-central1
+NETWORK: default-vpc-vertex-workbench-notebook
+RANGE: 10.128.0.0/20
+STACK_TYPE: IPV4_ONLY
+IPV6_ACCESS_TYPE: 
+INTERNAL_IPV6_PREFIX: 
+EXTERNAL_IPV6_PREFIX:
+$
+```
+
 ```
 #export ZONE=a
 #export LOCATION=${REGION}-${ZONE}
-```
-
 ```
