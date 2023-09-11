@@ -68,3 +68,10 @@ $
 #export ZONE=a
 #export LOCATION=${REGION}-${ZONE}
 ```
+
+# More Commands
+```bash
+gcloud compute networks create default-vpc --project=kaka-ai-clip-webtoon-creation --subnet-mode=custom --mtu=1460 --bgp-routing-mode=global
+
+gcloud compute networks subnets create default-vpc --project=kaka-ai-clip-webtoon-creation --range=10.128.0.0/20 --stack-type=IPV4_ONLY --network=default-vpc --region=asia-northeast3 --enable-private-ip-google-access
+```
