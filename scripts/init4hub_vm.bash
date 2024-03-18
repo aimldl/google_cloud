@@ -1,4 +1,4 @@
-# create_a_working_vm_instance.bash
+# init4hub_vm.bash
 
 export REGION=${1:-us-central1}
 echo "REGION=$REGION"
