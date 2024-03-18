@@ -1,4 +1,4 @@
-# init4hub_vm.bash
+# init4hub_vm
 
 export REGION=${1:-us-central1}
 echo "REGION=$REGION"
