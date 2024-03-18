@@ -34,6 +34,10 @@ run "gcloud compute instances create $INSTANCE_NAME \
 --image-project=$IMAGE_PROJECT \
 --network-interface=network-tier=PREMIUM,stack-type=IPV4_ONLY,subnet=$SUBNET"
 
+# ERROR: (gcloud.compute.instances.create) Could not fetch resource:
+# - Constraint constraints/compute.vmExternalIpAccess violated for project 1234567890ab. Add instance projects/llm-env/zones/us-central1-c/instances/hub-us-central1 to the constraint to use external IP with it.
+# Note: 1234567890ab is a dummy number.
+
 # 2. Wait
 echo "Waiting until ${INSTANCE_NAME} is created..."
 start_time=$(date +%s)
