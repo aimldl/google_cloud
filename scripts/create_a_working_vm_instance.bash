@@ -1,6 +1,6 @@
 # create_a_working_vm_instance.bash
 
-export REGION={$1:us-central1}
+export REGION=${1:-us-central1}
 echo "REGION=$REGION"
 
 # Handle the rest of the part automatically.
