@@ -51,6 +51,12 @@ $ ./ssh
 REGION=us-central1
 Setting the associated variables automatically...
 gcloud compute ssh hub-us-central1 --project=llm-env --zone=us-central1-c
+  ...
+```
+When the `gcloud compute ssh` command is executed for the first time, SSH keygen is executed and your public key is generated and saved automatically as follows:
+
+```bash
+  ...
 WARNING: The private SSH key file for gcloud does not exist.
 WARNING: The public SSH key file for gcloud does not exist.
 WARNING: You do not have an SSH key for gcloud.
@@ -69,6 +75,12 @@ The key's randomart image is:
         ...
 +----[SHA256]-----+
 Warning: Permanently added 'compute.0123456789012345678' (ECDSA) to the list of known hosts.
+  ...
+```
+The above SSH keygen message will be shown only at the beginning. From the second execution, the above message won't be shown and only the following welcome message will be displayed as follows.
+
+```
+  ...
 Welcome to Ubuntu 22.04.4 LTS (GNU/Linux 6.5.0-1016-gcp x86_64)
 
  * Documentation:  https://help.ubuntu.com
