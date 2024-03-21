@@ -9,6 +9,7 @@ run() {
   eval $COMMAND
 }
 
+https://cloud.google.com/compute/docs/regions-zones
 export REGION=${1:-us-central1}
 echo "REGION=$REGION"
 echo "Setting the associated variables automatically..."
