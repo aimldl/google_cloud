@@ -39,6 +39,8 @@ $
 ```
 
 ## ssh
+To see if SSH works, click 
+<img src='images/ssh-in-browser-welcome_to_ubuntu_22_04_5_lts.png'>
 ```
 $ ./ssh
 REGION=us-central1
