@@ -1,0 +1,77 @@
+# troubleshooting
+
+```bash
+$ ./create_a_notebook_instance 
+REGION=us-central1
+Setting the associated variables automatically...
+Create a Vertex Workbench Notebook notebook-us-central1
+gcloud notebooks instances create notebook-us-central1      --project=
+     --subnet-region=us-central1      --location=us-central1-c      --subnet=custom-subnetwork-us-central1      --machine-type=n1-standard-4      --vm-image-family=ubuntu-minimal-2204-lts      --vm-image-project=ubuntu-os-cloud
+ERROR: (gcloud.notebooks.instances.create) The project property is set to the empty string, which is invalid.
+To set your project, run:
+
+  $ gcloud config set project PROJECT_ID
+
+or to unset it, run:
+
+  $ gcloud config unset project
+```
+`--project=` has an empty string.
+
+```
+export PROJECT_ID=$(gcloud config list --format 'value(core.project)')
+```
+Run `gcloud config list` manually to see what is wrong.
+
+```
+$ gcloud config list
+[accessibility]
+screen_reader = True
+[component_manager]
+disable_update_check = True
+[compute]
+gce_metadata_read_timeout_sec = 30
+[core]
+account = admin@thekim.altostrat.com
+disable_usage_reporting = True
+[metrics]
+environment = devshell
+
+Your active configuration is: [cloudshell-27845]
+$
+```
+The core.project property is not displayed in gcloud config list output because it is not set in your active configuration. This means that you have not explicitly set a default project for the gcloud CLI to use.
+To set the default project, you can use the following command:
+
+```bash
+$ gcloud config set project PROJECT_ID
+```
+To check the PROJECT_ID, click `Navigation Menu`. Go to `Cloud overview` > `Dashboard` and check `Project ID` in the `Project Info` card. 
+
+Example, the Project ID is llm-env. Then run:
+```
+$ gcloud config set project llm-env   
+Updated property [core/project].
+$
+```
+
+Run `create_a_notebook_instance` again.
+
+```bash
+$ ./create_a_notebook_instance 
+REGION=us-central1
+Setting the associated variables automatically...
+Create a Vertex Workbench Notebook notebook-us-central1
+gcloud notebooks instances create notebook-us-central1      --project=llm-env
+     --subnet-region=us-central1      --location=us-central1-c      --subnet=custom-subnetwork-us-central1      --machine-type=n1-standard-4      --vm-image-family=ubuntu-minimal-2204-lts      --vm-image-project=ubuntu-os-cloud
+API [notebooks.googleapis.com] not enabled on project [llm-env]. Would you like to enable and retry (this will take a few 
+minutes)? (y/N)?  y
+
+Enabling service [notebooks.googleapis.com] on project [llm-env]...
+Operation "operations/acat.p2-950418483561-ba35471a-4737-4be7-9901-f358e6fad44e" finished successfully.
+Waiting for operation on Instance [notebook-us-central1] to be created with [projects/llm-env/locations/us-central1-c/ope
+rations/operation-1711028365028-6142bd5e5ed0a-3db2ad01-5814e9f3]...done.                                                 
+Created notebooks instance notebook-us-central1 [https://notebooks.googleapis.com/v1/projects/llm-env/locations/us-central1-c/operations/operation-1711028365028-6142bd5e5ed0a-3db2ad01-5814e9f3].
+$
+```
+Now it runs successfully.
