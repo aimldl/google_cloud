@@ -39,8 +39,13 @@ $
 ```
 
 ## ssh
-To see if SSH works, click 
+### SSH-in-browser
+To see if SSH works, click `SSH` under `Connect` and a new tab will open automatically.
+
 <img src='images/ssh-in-browser-welcome_to_ubuntu_22_04_5_lts.png'>
+
+### ssh on Cloud Shell
+To use ssh on Cloud Shell, run:
 ```
 $ ./ssh
 REGION=us-central1
