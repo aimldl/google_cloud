@@ -21,6 +21,7 @@ Instance hub-us-central1 is created and running
   ...
 ```
 <img src="images/create_a_hub_vm-success.png">
+If you don't see the create VM, click ***REFRESH***.
 
 The rest of the output result is as follows:
 ```bash
@@ -30,4 +31,5 @@ Updated [https://www.googleapis.com/compute/v1/projects/llm-env/zones/us-central
 
 gcloud compute instances add-tags hub-us-central1 --project=llm-env --tags=ssh-us-central1 --zone=us-central1-c
 Updated [https://www.googleapis.com/compute/v1/projects/llm-env/zones/us-central1-c/instances/hub-us-central1].
+$
 ```
