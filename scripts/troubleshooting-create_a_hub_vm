@@ -1,0 +1,43 @@
+# troubleshooting-create_a_hub_vm
+
+## constraints/compute.vmExternalIpAccess
+```bash
+$ ./create_a_hub_vm 
+REGION=us-central1
+Setting the associated variables automatically...
+gcloud compute instances create hub-us-central1 --project=llm-env --zone=us-central1-c --machine-type=e2-medium --image-family=ubuntu-minimal-2204-lts --image-project=ubuntu-os-cloud --network-interface=network-tier=PREMIUM,stack-type=IPV4_ONLY,subnet=custom-subnetwork-us-central1
+```
+may spit out the following error:
+```bash
+ERROR: (gcloud.compute.instances.create) Could not fetch resource:
+ - Constraint constraints/compute.vmExternalIpAccess violated for project 950418483561. Add instance projects/llm-env/zones/us-central1-c/instances/hub-us-central1 to the constraint to use external IP with it.
+```
+
+```bash
+# Set the project ID and org ID
+external PROJECT_ID=llm-env
+external ORGANIZATION_ID=790650485274
+external CONSTRAINT=compute.requireShieldedVm
+
+# Disable the `constraints/compute.requireShieldedVm` policy for the project
+gcloud org-policies delete $CONSTRAINT \
+  --project=$PROJECT_ID
+```
+
+```bash
+$ gcloud org-policies delete $CONSTRAINT \
+  --project=$PROJECT_ID
+API [orgpolicy.googleapis.com] not enabled on project [llm-env]. Would you like to enable and retry (this will take a few minutes)? (y/N)?  y
+
+Enabling service [orgpolicy.googleapis.com] on project [llm-env]...
+Operation "operations/acat.p2-950418483561-91a6a597-49e1-43e3-b0a4-b052e965fb4e" finished successfully.
+Deleted policy [projects/llm-env/policies/compute.requireShieldedVm].
+{}
+$
+```
+This was not effective!
+
+For details, refer to:
+```bash
+$ gcloud org-policies delete --help
+```
