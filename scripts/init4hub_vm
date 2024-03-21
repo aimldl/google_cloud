@@ -7,6 +7,7 @@ run() {
   eval $COMMAND
 }
 
+# https://cloud.google.com/compute/docs/regions-zones
 export REGION=${1:-us-central1}
 echo "REGION=$REGION"
 echo "Setting the associated variables automatically..."
@@ -14,8 +15,17 @@ echo "Setting the associated variables automatically..."
 # Handle the rest of the part automatically.
 #   You may edit some lines to change the configuration.
 export PROJECT_ID=$(gcloud config list --format 'value(core.project)')
-export NETWORK=custom-network-${REGION}
+if [[ -z "$PROJECT_ID" ]]; then
+  echo "PROJECT_ID is empty because the core.project property is not displayed."
+  echo "This means that you haven't explicitly set a default project for the gcloud CLI."
+  echo "Please set your project by running:"
+  echo "  $ gcloud config set project PROJECT_ID"
+  echo "To check the PROJECT_ID, go to Google Cloud Console and click Navigation Menu."
+  echo "Go to Cloud overview > Dashboard and check Project ID in the Project Info card."
+  exit 1
+fi
 
+export NETWORK=custom-network-${REGION}
 export SUBNET=custom-subnetwork-${REGION}
 export SUBNET_RANGE=10.128.0.0/20
 # Example: 10.138.0.0/20, 10.132.0.0/20, 10.128.0.0/20
@@ -31,18 +41,21 @@ export SERVICE_ACCOUNT_NAME=my-service-account
 export SECRET_NAME=my-secret
 export SERVICE_ACCOUNT_KEY_NAME=my-key.json
 
-# 1. Create a network
+echo ""
+echo "Creating a network $NETWORK ..."
 run "gcloud compute networks create $NETWORK --project $PROJECT_ID --subnet-mode=custom --mtu=1460 --bgp-routing-mode=regional"
 
-# 2. Create a subnet for this network
+echo ""
+echo "Creating a subnet $SUBNET for this network ..."
 run "gcloud compute networks subnets create $SUBNET \
 --project=$PROJECT_ID \
 --range=$SUBNET_RANGE \
 --network=$NETWORK \
 --region=$REGION"
 
-# 3. Create firewall rules
-#    to allow HTTP (tcp:80) traffic with a tag (http)
+echo ""
+echo "Creating firewall rules..."
+echo "  to allow HTTP (tcp:80) traffic with a tag (http)"
 run "gcloud compute firewall-rules create $FIREWALL_NAME_HTTP \
 --network=$NETWORK \
 --target-tags=$TAG_NAME_HTTP \
@@ -50,7 +63,8 @@ run "gcloud compute firewall-rules create $FIREWALL_NAME_HTTP \
 --priority=$FIREWALL_PRIORITY"
 # --source-ranges=$IP_RANGE  # optional
 
-#    to allow SSH (tcp:22) traffic with a tag (ssh)
+echo ""
+echo "  to allow SSH (tcp:22) traffic with a tag (ssh)"
 run "gcloud compute firewall-rules create $FIREWALL_NAME_SSH \
 --network=$NETWORK \
 --target-tags=$TAG_NAME_SSH \
@@ -58,9 +72,8 @@ run "gcloud compute firewall-rules create $FIREWALL_NAME_SSH \
 --priority=$FIREWALL_PRIORITY"
 # --source-ranges=$IP_RANGE  # optional
 
-# 4. Create a service account, service account key and add the key to Secrete Manager
-
-# Create a service account.
+echo ""
+echo "  Creating a service account $SERVICE_ACCOUNT_NAME..."
 run "gcloud iam service-accounts create $SERVICE_ACCOUNT_NAME\
     --display-name "My Service Account" \
     --project=$PROJECT_ID"
@@ -72,7 +85,8 @@ SERVICE_ACCOUNT_EMAIL=$(gcloud iam service-accounts list \
     --filter='displayName:"My Service Account"')
 echo $SERVICE_ACCOUNT_EMAIL
 
-# Create a secret in Secret Manager.
+echo ""
+echo "Creating a secret/service account key $SECRET_NAME and add the key to Secrete Manager ..."
 run "gcloud secrets create $SECRET_NAME\
     --replication-policy=automatic \
     --project=$PROJECT_ID"
