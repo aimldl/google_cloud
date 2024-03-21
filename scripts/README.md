@@ -102,5 +102,5 @@ snap
 admin_thekim_altostrat_com@hub-us-central1:~$ exit
 logout
 Connection to 12.345.67.89 closed.
-admin_@cloudshell:~/git/google_cloud/scripts (llm-env)$
+$
 ```
