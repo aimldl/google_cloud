@@ -1,6 +1,10 @@
 
 
 ```bash
+$ ./init4hub_vm
+```
+
+```bash
 $ ./create_a_hub_vm
 ```
 ```
