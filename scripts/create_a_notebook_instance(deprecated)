@@ -1,8 +1,9 @@
-# create_a_notebook_instance
+# create_a_notebook_instance(deprecated)
 #   notebook is a short for Vertex Workbench Notebook
 #   Prerequisites
 #     * gcloud is installed.
 #     * Run init4hub_vm before running this
+#   Note: Vertex Workbench Notebook has been deprecated.
 
 # Function definition
 run() {
