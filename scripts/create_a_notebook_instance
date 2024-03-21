@@ -1,5 +1,5 @@
 # create_a_notebook_instance
-#
+#   notebook is a short for Vertex Workbench Notebook
 #   Prerequisite: run init4hub_vm before running this
 
 # Function definition
@@ -13,7 +13,8 @@ export REGION=${1:-us-central1}
 echo "REGION=$REGION"
 echo "Setting the associated variables automatically..."
 
-export INSTANCE_NAME=hub-${REGION}
+# vertex-workbench-notebook
+export INSTANCE_NAME=notebook-${REGION}
 export PROJECT_ID=$(gcloud config list --format 'value(core.project)')
 export ZONE=$REGION-c
 export SUBNET=custom-subnetwork-${REGION}
