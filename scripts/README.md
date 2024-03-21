@@ -15,8 +15,19 @@ PREEMPTIBLE:
 INTERNAL_IP: 10.128.0.3
 EXTERNAL_IP: 34.170.227.16
 STATUS: RUNNING
+
 Waiting until hub-us-central1 is created...
 Instance hub-us-central1 is created and running
   ...
 ```
 <img src="images/create_a_hub_vm-success.png">
+
+The rest of the output result is as follows:
+```bash
+  ...
+gcloud compute instances add-tags hub-us-central1 --tags=http-us-central1 --project=llm-env --zone=us-central1-c
+Updated [https://www.googleapis.com/compute/v1/projects/llm-env/zones/us-central1-c/instances/hub-us-central1].
+
+gcloud compute instances add-tags hub-us-central1 --project=llm-env --tags=ssh-us-central1 --zone=us-central1-c
+Updated [https://www.googleapis.com/compute/v1/projects/llm-env/zones/us-central1-c/instances/hub-us-central1].
+```
