@@ -1,0 +1,32 @@
+# create_bucket
+#
+#   Prerequisite: run init4hub_vm before running this
+
+# Function definition
+run() {
+  COMMAND=$1
+  echo "$COMMAND"
+  eval $COMMAND
+}
+
+# https://cloud.google.com/compute/docs/regions-zones
+export REGION=${1:-us-central1}
+echo "REGION=$REGION"
+export PROJECT_ID=$(gcloud config list --format 'value(core.project)')
+if [[ -z "$PROJECT_ID" ]]; then
+  echo "PROJECT_ID is empty because the core.project property is not displayed."
+  echo "This means that you haven't explicitly set a default project for the gcloud CLI."
+  echo "Please set your project by running:"
+  echo "  $ gcloud config set project PROJECT_ID"
+  echo "To check the PROJECT_ID, go to Google Cloud Console and click Navigation Menu."
+  echo "Go to Cloud overview > Dashboard and check Project ID in the Project Info card."
+  exit 1
+fi
+
+export ZONE=$REGION-a
+export USER_ID=tkim
+export BUCKET=$PROJECT_ID-$USER_ID-$REGION
+echo $BUCKET
+exit 1
+run "gsutil mb -l $ZONE gs://$REGION"
+
