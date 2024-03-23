@@ -25,49 +25,60 @@ if [[ -z "$PROJECT_ID" ]]; then
   echo "Go to Cloud overview > Dashboard and check Project ID in the Project Info card."
   exit 1
 fi
-
-#export ZONE=$REGION-c
-export ZONE=$REGION-a
-export SUBNET=custom-subnetwork-${REGION}
-export MACHINE_TYPE=g2-standard-96
-export ACCELERATOR_TYPE=nvidia-l4
-export ACCELERATOR_COUNT=8
-export HOST_PREFIX=$(whoami)
-export IMAGE_NAME=base-deeplearning-nvidia-1
-export IMAGE_SIZE=200
-
-#export IMAGE_FAMILY=ubuntu-minimal-2204-lts
-#export IMAGE_PROJECT=ubuntu-os-cloud
-
-export BUCKET=$PROJECT_ID-TKIM-$REGION
 export SERVICE_ACCOUNT=$(gcloud iam service-accounts list \
     --format='value(email)' \
     --project=$PROJECT_ID \
     --filter='displayName:"My Service Account"')
+#export ZONE=$REGION-c
+export ZONE=$REGION-a
+export MACHINE_TYPE=g2-standard-96
+export SUBNET=custom-subnetwork-${REGION}
+export USER_NAME=tkim
+export DEVICE_NAME=$USER_NAME-disk
+#export IMAGE_NAME=base-deeplearning-nvidia-1
+export IMAGE_NAME=projects/ml-images/global/images/c0-deeplearning-common-gpu-v20230925-debian-11-py310
+export IMAGE_SIZE=200
+export DISK_TYPE=projects/injae-sandbox-340804/zones/asia-southeast1-b/diskTypes/pd-balanced
+export ACCELERATOR_TYPE=nvidia-l4
+export ACCELERATOR_COUNT=8
+export HOST_PREFIX=$(whoami)
+export BUCKET=$PROJECT_ID-TKIM-$REGION
 export DATA_RO_DISK=$HOST_PREFIX-data
 export WORKER_COUNT=10
 
 export TIMEOUT_SECONDS=300  # Timeout after 5 minutes
 export SLEEP_INTERVAL=30    # seconds
 
-run "gsutil mb -l $REGION gs://$BUCKET"
-
-exit 1
-
 # 1. Create a VM instance using the created network and subnet
 #    https://cloud.google.com/sdk/gcloud/reference/compute/instances/create
 run "gcloud compute instances create $INSTANCE_NAME \
 --project=$PROJECT_ID \
+--service-account=$SERVICE_ACCOUNT \
 --zone=$ZONE \
 --machine-type=$MACHINE_TYPE \
---image-family=$IMAGE_FAMILY \
---image-project=$IMAGE_PROJECT \
---network-interface=network-tier=PREMIUM,stack-type=IPV4_ONLY,subnet=$SUBNET"
+#--create-disk=auto-delete=yes,boot=yes,device-name=$DEVICE_NAME,image=$IMANGE_NAME,mode=rw,size=$IMAGE_SIZE,type=$DISK_TYPE \
+#--network-interface=network-tier=PREMIUM,stack-type=IPV4_ONLY,subnet=$SUBNET \
+--accelerator=type=$ACCELERATOR_TYPE,count=$ACCELERATOR_COUNT \
+--metadata=enable-oslogin=true \
+--maintenance-policy=TERMINATE \
+--provisioning-model=STANDARD \
+--no-shielded-secure-boot \
+--shielded-vtpm \
+--shielded-integrity-monitoring \
+--labels=goog-ec-src=vm_add-gcloud \
+--reservation-affinity=any \
+--scopes=https://www.googleapis.com/auth/devstorage.read_only,https://www.googleapis.com/auth/logging.write,https://www.googleapis.com/auth/monitoring.write,https://www.googleapis.com/auth/servicecontrol,https://www.googleapis.com/auth/service.management.readonly,https://www.googleapis.com/auth/trace.append
+"
 
+# --network-interface=network-tier=PREMIUM,stack-type=IPV4_ONLY,subnet=$SUBNET \
 # ERROR: (gcloud.compute.instances.create) Could not fetch resource:
-# - Constraint constraints/compute.vmExternalIpAccess violated for project 1234567890ab. Add instance projects/llm-env/zones/us-central1-c/instances/hub-us-central1 to the constraint to use external IP with it.
-# Note: 1234567890ab is a dummy number.
+# - Invalid value for field 'resource.networkInterfaces[0].network': 'https://compute.googleapis.com/compute/v1/projects/llm-env/global/networks/default'. The referenced network resource cannot be found.
 
+# --create-disk=auto-delete=yes,boot=yes,device-name=$DEVICE_NAME,image=$IMANGE_NAME,mode=rw,size=$IMAGE_SIZE,type=$DISK_TYPE \
+# ERROR: (gcloud.compute.instances.create) Could not fetch resource:
+# - Invalid value for field 'resource.disks[0]': '{  "type": "PERSISTENT",  "mode": "READ_WRITE",  "deviceName": "tkim-disk",  "boot": true,  "initial...'. Boot disk must have a source specified.
+
+exit 1
 # 2. Wait
 echo "Waiting until ${INSTANCE_NAME} is created..."
 start_time=$(date +%s)

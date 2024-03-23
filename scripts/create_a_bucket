@@ -1,4 +1,4 @@
-# create_bucket
+# create_a_bucket
 #
 #   Prerequisite: run init4hub_vm before running this
 
@@ -9,9 +9,6 @@ run() {
   eval $COMMAND
 }
 
-# https://cloud.google.com/compute/docs/regions-zones
-export REGION=${1:-us-central1}
-echo "REGION=$REGION"
 export PROJECT_ID=$(gcloud config list --format 'value(core.project)')
 if [[ -z "$PROJECT_ID" ]]; then
   echo "PROJECT_ID is empty because the core.project property is not displayed."
@@ -22,11 +19,12 @@ if [[ -z "$PROJECT_ID" ]]; then
   echo "Go to Cloud overview > Dashboard and check Project ID in the Project Info card."
   exit 1
 fi
-
-export ZONE=$REGION-a
 export USER_ID=tkim
-export BUCKET=$PROJECT_ID-$USER_ID-$REGION
-echo $BUCKET
-exit 1
-run "gsutil mb -l $ZONE gs://$REGION"
+# https://cloud.google.com/compute/docs/regions-zones
+export REGION=${1:-us-central1}
+echo "REGION=$REGION"
+#export ZONE=$REGION-a
 
+export BUCKET=$PROJECT_ID-$USER_ID-$REGION
+echo "Creating a bucket $BUCKET ..."
+run "gsutil mb -l $ZONE gs://$REGION"
