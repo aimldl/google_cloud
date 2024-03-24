@@ -40,11 +40,11 @@ export SECRET_NAME=custom-secret
 export SERVICE_ACCOUNT_KEY_NAME=custom-key.json
 
 echo ""
-echo "Creating a network $NETWORK ..."
+echo "Create a network $NETWORK ..."
 run "gcloud compute networks create $NETWORK --project $PROJECT_ID --subnet-mode=custom --mtu=1460 --bgp-routing-mode=regional"
 
 echo ""
-echo "Creating a subnet $SUBNET for this network ..."
+echo "Create a subnet $SUBNET for the created VPC network ..."
 run "gcloud compute networks subnets create $SUBNET \
 --project=$PROJECT_ID \
 --region=$REGION \
@@ -52,8 +52,11 @@ run "gcloud compute networks subnets create $SUBNET \
 --range=$SUBNET_RANGE"
 
 echo ""
-echo "Creating firewall rules..."
-echo "  to allow HTTP (tcp:80) traffic with a tag (http)"
+echo "Create firewall rules to allow HTTP traffic with a tag"
+echo "  * HTTP: tcp:80"
+echo "  * tag: allow-http-us-central1"
+echo "Note: The tag will be used to connect the firewall to a VM instance after the instance is created."
+echo ""
 run "gcloud compute firewall-rules create $FIREWALL_NAME_HTTP \
 --network=$NETWORK \
 --target-tags=$TAG_NAME_HTTP \
@@ -62,7 +65,11 @@ run "gcloud compute firewall-rules create $FIREWALL_NAME_HTTP \
 # --source-ranges=$IP_RANGE  # optional
 
 echo ""
-echo "  to allow SSH (tcp:22) traffic with a tag (ssh)"
+echo "Create firewall rules to allow SSH traffic with a tag"
+echo "  * SSH: tcp:2"
+echo "  * tag: allow-ssh-us-central1"
+echo "Note: The tag will be used to connect the firewall to a VM instance after the instance is created."
+echo ""
 run "gcloud compute firewall-rules create $FIREWALL_NAME_SSH \
 --network=$NETWORK \
 --target-tags=$TAG_NAME_SSH \
@@ -71,23 +78,24 @@ run "gcloud compute firewall-rules create $FIREWALL_NAME_SSH \
 # --source-ranges=$IP_RANGE  # optional
 
 echo ""
-echo "  Creating a service account $SERVICE_ACCOUNT_NAME..."
+echo "  Create a service account $SERVICE_ACCOUNT_NAME..."
 run "gcloud iam service-accounts create $SERVICE_ACCOUNT_NAME\
     --project=$PROJECT_ID \
     --display-name "Custom Service Account""
 
+echo ""
+echo "Create a secret/service account key $SECRET_NAME and add the key to Secrete Manager ..."
+run "gcloud secrets create $SECRET_NAME\
+    --project=$PROJECT_ID \
+    --replication-policy=automatic"
+
+# TODO: This the following block after double-checking this is not necessary.
 # Get the service account email.
 SERVICE_ACCOUNT_EMAIL=$(gcloud iam service-accounts list \
     --format='value(email)' \
     --project=$PROJECT_ID \
     --filter='displayName:"Custom Service Account"')
 echo $SERVICE_ACCOUNT_EMAIL
-
-echo ""
-echo "Creating a secret/service account key $SECRET_NAME and add the key to Secrete Manager ..."
-run "gcloud secrets create $SECRET_NAME\
-    --project=$PROJECT_ID \
-    --replication-policy=automatic"
 
 # TODO:
 # Add the service account as an IAM member to the secret.
