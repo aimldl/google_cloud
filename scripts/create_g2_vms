@@ -43,6 +43,8 @@ export IMAGE_PROJECT=deeplearning-platform-release
 #export IMAGE_NAME=projects/ml-images/global/images/c0-deeplearning-common-gpu-v20230925-debian-11-py310
 #export IMAGE_SIZE=200
 export DISK_TYPE=projects/injae-sandbox-340804/zones/asia-southeast1-b/diskTypes/pd-balanced
+# https://cloud.google.com/compute/docs/gpus#l4-gpus
+# https://cloud.google.com/compute/docs/accelerator-optimized-machines#g2-standard-vms
 export ACCELERATOR=type=nvidia-l4,count=8
 export HOST_PREFIX=$(whoami)
 export BUCKET=$PROJECT_ID-TKIM-$REGION

@@ -24,9 +24,11 @@ if [[ -z "$PROJECT_ID" ]]; then
   exit 1
 fi
 
-export NETWORK=default
+export NETWORK=default-vpc-network
 export SUBNET=default
-export SUBNET_RANGE=10.178.0.0/20
+#export SUBNET=default-subnet
+export SUBNET_RANGE=10.0.0.0/24
+#export SUBNET_RANGE=10.178.0.0/20
 #export SUBNET_RANGE=10.128.0.0/20
 # Example: 10.138.0.0/20, 10.132.0.0/20, 10.128.0.0/20
 
@@ -39,13 +41,14 @@ echo "Creating a subnet $SUBNET for this network ..."
 run "gcloud compute networks subnets create $SUBNET \
 --project=$PROJECT_ID \
 --range=$SUBNET_RANGE \
---network=$NETWORK \
---region=$REGION"
+--network=$NETWORK"
+#--network=$NETWORK \
+#--region=$REGION"
 
 
 # Essential rules
 export FIREWALL_NAME1=allow-essential-protocols-$REGION
-export NETWORK=default
+#export NETWORK=default
 export ALLOW=tcp,udp,icmp
 export TAG_NAME=allow-tcp-udp-icmp-$REGION
 export FIREWALL_PRIORITY=1000
