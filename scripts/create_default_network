@@ -1,0 +1,83 @@
+# create_default_network
+
+# Function definition
+run() {
+  COMMAND=$1
+  echo "$COMMAND"
+  eval $COMMAND
+}
+
+# https://cloud.google.com/compute/docs/regions-zones
+export REGION=${1:-us-central1}
+echo "REGION=$REGION"
+echo "Setting the associated variables automatically..."
+# Handle the rest of the part automatically.
+#   You may edit some lines to change the configuration.
+export PROJECT_ID=$(gcloud config list --format 'value(core.project)')
+if [[ -z "$PROJECT_ID" ]]; then
+  echo "PROJECT_ID is empty because the core.project property is not displayed."
+  echo "This means that you haven't explicitly set a default project for the gcloud CLI."
+  echo "Please set your project by running:"
+  echo "  $ gcloud config set project PROJECT_ID"
+  echo "To check the PROJECT_ID, go to Google Cloud Console and click Navigation Menu."
+  echo "Go to Cloud overview > Dashboard and check Project ID in the Project Info card."
+  exit 1
+fi
+
+export NETWORK=default
+export SUBNET=default
+export SUBNET_RANGE=10.178.0.0/20
+#export SUBNET_RANGE=10.128.0.0/20
+# Example: 10.138.0.0/20, 10.132.0.0/20, 10.128.0.0/20
+
+echo ""
+echo "Creating a network $NETWORK ..."
+run "gcloud compute networks create $NETWORK --project $PROJECT_ID --subnet-mode=custom --mtu=1460 --bgp-routing-mode=regional"
+
+echo ""
+echo "Creating a subnet $SUBNET for this network ..."
+run "gcloud compute networks subnets create $SUBNET \
+--project=$PROJECT_ID \
+--range=$SUBNET_RANGE \
+--network=$NETWORK \
+--region=$REGION"
+
+export FIREWALL_NAME1=allow-essential-protocols-$REGION
+export FIREWALL_NAME2=allow-ssh-rdp-$REGION
+export IP_RANGE=0.0.0.0/0
+
+echo ""
+echo "Creating a firewall rule for the essential protocols ..."
+run "gcloud compute firewall-rules create $FIREWALL_NAME1 \
+--network=$NETWORK \
+--allow=tcp,udp,icmp
+#--source-ranges=$IP_RANGE"
+
+echo ""
+echo "Creating a firewall rule for tcp:22, tcp:3389, icmp ..."
+run "gcloud compute firewall-rules create $FIREWALL_NAME2 \
+--network=$NETWORK \
+--allow=tcp:22,tcp:3389,icmp
+
+#export FIREWALL_NAME_HTTP=allow-http-traffic-${REGION}
+#export TAG_NAME_HTTP=http-${REGION}
+#export FIREWALL_NAME_SSH=allow-ssh-traffic-${REGION}
+#export TAG_NAME_SSH=ssh-${REGION}
+#export FIREWALL_PRIORITY=1000
+
+#echo "  to allow HTTP (tcp:80) traffic with a tag (http)"
+#run "gcloud compute firewall-rules create $FIREWALL_NAME_HTTP \
+#--network=$NETWORK \
+#--target-tags=$TAG_NAME_HTTP \
+#--allow=tcp:80 \
+#--priority=$FIREWALL_PRIORITY"
+# --source-ranges=$IP_RANGE  # optional
+
+#echo ""
+#echo "  to allow SSH (tcp:22) traffic with a tag (ssh)"
+#run "gcloud compute firewall-rules create $FIREWALL_NAME_SSH \
+#--network=$NETWORK \
+#--target-tags=$TAG_NAME_SSH \
+#--allow=tcp:22 \
+#--priority=$FIREWALL_PRIORITY"
+# --source-ranges=$IP_RANGE  # optional

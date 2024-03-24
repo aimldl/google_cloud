@@ -32,15 +32,17 @@ export SERVICE_ACCOUNT=$(gcloud iam service-accounts list \
 #export ZONE=$REGION-c
 export ZONE=$REGION-a
 export MACHINE_TYPE=g2-standard-96
+export IMAGE_FAMILY=pytorch-latest-gpu
 export SUBNET=custom-subnetwork-${REGION}
 export USER_NAME=tkim
 export DEVICE_NAME=$USER_NAME-disk
 #export IMAGE_NAME=base-deeplearning-nvidia-1
-export IMAGE_NAME=projects/ml-images/global/images/c0-deeplearning-common-gpu-v20230925-debian-11-py310
-export IMAGE_SIZE=200
+export IMAGE_FAMILY=pytorch-latest-gpu 
+export IMAGE_PROJECT=deeplearning-platform-release
+#export IMAGE_NAME=projects/ml-images/global/images/c0-deeplearning-common-gpu-v20230925-debian-11-py310
+#export IMAGE_SIZE=200
 export DISK_TYPE=projects/injae-sandbox-340804/zones/asia-southeast1-b/diskTypes/pd-balanced
-export ACCELERATOR_TYPE=nvidia-l4
-export ACCELERATOR_COUNT=8
+export ACCELERATOR=type=nvidia-l4,count=8
 export HOST_PREFIX=$(whoami)
 export BUCKET=$PROJECT_ID-TKIM-$REGION
 export DATA_RO_DISK=$HOST_PREFIX-data
@@ -56,18 +58,23 @@ run "gcloud compute instances create $INSTANCE_NAME \
 --service-account=$SERVICE_ACCOUNT \
 --zone=$ZONE \
 --machine-type=$MACHINE_TYPE \
-#--create-disk=auto-delete=yes,boot=yes,device-name=$DEVICE_NAME,image=$IMANGE_NAME,mode=rw,size=$IMAGE_SIZE,type=$DISK_TYPE \
-#--network-interface=network-tier=PREMIUM,stack-type=IPV4_ONLY,subnet=$SUBNET \
---accelerator=type=$ACCELERATOR_TYPE,count=$ACCELERATOR_COUNT \
---metadata=enable-oslogin=true \
---maintenance-policy=TERMINATE \
---provisioning-model=STANDARD \
---no-shielded-secure-boot \
---shielded-vtpm \
---shielded-integrity-monitoring \
---labels=goog-ec-src=vm_add-gcloud \
---reservation-affinity=any \
---scopes=https://www.googleapis.com/auth/devstorage.read_only,https://www.googleapis.com/auth/logging.write,https://www.googleapis.com/auth/monitoring.write,https://www.googleapis.com/auth/servicecontrol,https://www.googleapis.com/auth/service.management.readonly,https://www.googleapis.com/auth/trace.append
+#--create-disk=auto-delete=yes,boot=yes,device-name=$DEVICE_NAME,image=$IMAGE_NAME,mode=rw,size=$IMAGE_SIZE,type=$DISK_TYPE \
+--network-interface=network-tier=PREMIUM,stack-type=IPV4_ONLY,subnet=$SUBNET \
+# https://cloud.google.com/deep-learning-vm/docs/images
+--image-family=$IMAGE_FAMILY \
+--image-project=$IMAGE_PROJECT \
+--accelerator=type=$ACCELERATOR \
+--metadata="install-nvidia-drive=True" \
+--tags=http-server,https-server
+#--metadata=enable-oslogin=true \
+#--maintenance-policy=TERMINATE \
+#--provisioning-model=STANDARD \
+#--no-shielded-secure-boot \
+#--shielded-vtpm \
+#--shielded-integrity-monitoring \
+#--labels=goog-ec-src=vm_add-gcloud \
+#--reservation-affinity=any \
+#--scopes=https://www.googleapis.com/auth/devstorage.read_only,https://www.googleapis.com/auth/logging.write,https://www.googleapis.com/auth/monitoring.write,https://www.googleapis.com/auth/servicecontrol,https://www.googleapis.com/auth/service.management.readonly,https://www.googleapis.com/auth/trace.append
 "
 
 # --network-interface=network-tier=PREMIUM,stack-type=IPV4_ONLY,subnet=$SUBNET \
