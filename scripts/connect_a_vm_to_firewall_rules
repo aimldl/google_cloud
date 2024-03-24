@@ -1,0 +1,62 @@
+# connect_a_vm_to_firewall_rules
+#
+# Run this after creating a VM and firewall rules.
+# Prerequisite:
+#   The two firewalls have already been created
+#   If not, run init4hub_vm
+# 
+# Note: TAG_NAME_HTTP & TAG_NAME_SSH are copied from init4hub_vm for readability & convenience
+
+# Function definition
+run() {
+  COMMAND=$1
+  echo "$COMMAND"
+  eval $COMMAND
+}
+
+# https://cloud.google.com/compute/docs/regions-zones
+export INSTANCE_NAME=${1:-g2-test}
+export REGION=${2:-us-central1}
+
+echo "REGION=$REGION"
+echo "Handling the associated variables automatically..."
+export ZONE=$REGION-a
+export PROJECT_ID=$(gcloud config list --format 'value(core.project)')
+if [[ -z "$PROJECT_ID" ]]; then
+  echo "PROJECT_ID is empty because the core.project property is not displayed."
+  echo "This means that you haven't explicitly set a default project for the gcloud CLI."
+  echo "Please set your project by running:"
+  echo "  $ gcloud config set project PROJECT_ID"
+  echo "To check the PROJECT_ID, go to Google Cloud Console and click Navigation Menu."
+  echo "Go to Cloud overview > Dashboard and check Project ID in the Project Info card."
+  exit 1
+fi
+
+# gcloud compute instances describe INSTANCE_NAME --format="value(tags.items)"
+export TAG_NAME_HTTP=http-${REGION}
+export TAG_NAME_SSH=ssh-${REGION}
+export TAG_NAME=allow-http-ssh-rdp-$REGION
+export TAG_NAME=allow-tcp-udp-icmp-$REGION
+
+#   https://cloud.google.com/sdk/gcloud/reference/compute/instances/add-tags
+echo ""
+echo "Connecting a VM instance to the firewall rules ..."
+run "gcloud compute instances add-tags $INSTANCE_NAME \
+--project=$PROJECT_ID \
+--zone=$ZONE \
+--tags=allow-ssh-traffic-us-central1"
+#--tags=allow-http-traffic-us-central1"
+
+exit 1
+#------------
+echo ""
+echo "Connecting a VM instance to the firewall rules ..."
+run "gcloud compute instances add-tags $INSTANCE_NAME \
+--project=$PROJECT_ID \
+--zone=$ZONE \
+--tags=$TAG_NAME_HTTP"
+
+run "gcloud compute instances add-tags $INSTANCE_NAME \
+--project=$PROJECT_ID \
+--zone=$ZONE \
+--tags=$TAG_NAME_SSH"
