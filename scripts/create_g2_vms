@@ -33,7 +33,8 @@ export SERVICE_ACCOUNT=$(gcloud iam service-accounts list \
 export ZONE=$REGION-a
 export MACHINE_TYPE=g2-standard-96
 export IMAGE_FAMILY=pytorch-latest-gpu
-export SUBNET=custom-subnetwork-${REGION}
+#export SUBNET=custom-subnetwork-${REGION}
+export SUBNET=default
 export USER_NAME=tkim
 export DEVICE_NAME=$USER_NAME-disk
 #export IMAGE_NAME=base-deeplearning-nvidia-1
@@ -53,6 +54,7 @@ export SLEEP_INTERVAL=30    # seconds
 
 # 1. Create a VM instance using the created network and subnet
 #    https://cloud.google.com/sdk/gcloud/reference/compute/instances/create
+echo ""
 run "gcloud compute instances create $INSTANCE_NAME \
 --project=$PROJECT_ID \
 --service-account=$SERVICE_ACCOUNT \

@@ -42,22 +42,37 @@ run "gcloud compute networks subnets create $SUBNET \
 --network=$NETWORK \
 --region=$REGION"
 
+
+# Essential rules
 export FIREWALL_NAME1=allow-essential-protocols-$REGION
-export FIREWALL_NAME2=allow-ssh-rdp-$REGION
-export IP_RANGE=0.0.0.0/0
+export NETWORK=default
+export ALLOW=tcp,udp,icmp
+export TAG_NAME=allow-tcp-udp-icmp-$REGION
+export FIREWALL_PRIORITY=1000
+#export IP_RANGE=0.0.0.0/0
 
 echo ""
-echo "Creating a firewall rule for the essential protocols ..."
+echo "Creating a firewall rule: $ALLOW ..."
 run "gcloud compute firewall-rules create $FIREWALL_NAME1 \
 --network=$NETWORK \
---allow=tcp,udp,icmp
-#--source-ranges=$IP_RANGE"
+--allow=$ALLOW \
+--target-tags=$TAG_NAME \
+--priority=$FIREWALL_PRIORITY
+"
+#--source-ranges=$IP_RANGE
+
+export FIREWALL_NAME2=allow-ssh-rdp-$REGION
+export ALLOW=tcp:80,tcp:22,tcp:3389
+export TAG_NAME=allow-http-ssh-rdp-$REGION
 
 echo ""
-echo "Creating a firewall rule for tcp:22, tcp:3389, icmp ..."
+echo "Creating a firewall rule: $ALLOW ..."
 run "gcloud compute firewall-rules create $FIREWALL_NAME2 \
 --network=$NETWORK \
---allow=tcp:22,tcp:3389,icmp
+--allow=$ALLOW \
+--target-tags=$TAG_NAME \
+--priority=$FIREWALL_PRIORITY
+"
 
 #export FIREWALL_NAME_HTTP=allow-http-traffic-${REGION}
 #export TAG_NAME_HTTP=http-${REGION}
