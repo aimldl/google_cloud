@@ -21,10 +21,8 @@ export USER_TAG=${1:-tkim}
 # https://cloud.google.com/compute/docs/regions-zones
 export REGION=${2:-us-central1}
 echo "REGION=$REGION"
-export ZONE=$REGION-a
-export LOCATION=$ZONE
-export UNIQUE_BUCKET_NAME=$USER_TAG-$PROJECT_ID-$REGION
+export LOCATION=$REGION
+export UNIQUE_BUCKET_NAME=$USER_TAG-$PROJECT_ID-$LOCATION
 
 # Make Bucket
-echo "Creating a bucket $UNIQUE_BUCKET_NAME ..."
 run "gsutil mb -l $LOCATION -p $PROJECT_ID gs://$UNIQUE_BUCKET_NAME"
