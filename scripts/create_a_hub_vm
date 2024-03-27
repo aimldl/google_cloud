@@ -28,9 +28,12 @@ fi
 
 export ZONE=$REGION-a
 export MACHINE_TYPE=e2-medium
-export IMAGE_FAMILY=ubuntu-minimal-2204-lts
+# https://cloud.google.com/compute/docs/images#list_of_public_images_available_on
+#  $ gcloud compute images list | grep ubuntu-2004
+export IMAGE_FAMILY=ubuntu-2004-lts
+#export IMAGE_FAMILY=ubuntu-minimal-2204-lts
 export IMAGE_PROJECT=ubuntu-os-cloud
-export SUBNET=custom-subnetwork-${REGION}
+export SUBNET=custom-subnet-${REGION}
 
 export TIMEOUT_SECONDS=300  # Timeout after 5 minutes
 export SLEEP_INTERVAL=30    # seconds
@@ -77,17 +80,18 @@ done
 #   The two firewalls have already been created
 #   If not, run init4hub_vm
 # 
-# Note: TAG_NAME_HTTP & TAG_NAME_SSH are copied from init4hub_vm for readability & convenience
 
-export TAG_NAME_HTTP=http-${REGION}
-export TAG_NAME_SSH=ssh-${REGION}
-
-run "gcloud compute instances add-tags $INSTANCE_NAME \
---tags=$TAG_NAME_HTTP \
---project=$PROJECT_ID \
---zone=$ZONE"
+# For readability & convenience
+export TAG_NAME_HTTP=allow-http-${REGION}
+export TAG_NAME_SSH=allow-ssh-${REGION}
+# For readability & convenience
 
 run "gcloud compute instances add-tags $INSTANCE_NAME \
 --project=$PROJECT_ID \
---tags=$TAG_NAME_SSH \
---zone=$ZONE"
+--zone=$ZONE \
+--tags=$TAG_NAME_HTTP"
+
+run "gcloud compute instances add-tags $INSTANCE_NAME \
+--project=$PROJECT_ID \
+--zone=$ZONE \
+--tags=$TAG_NAME_SSH"
