@@ -17,9 +17,9 @@ if [[ -z "$PROJECT_ID" ]]; then
   echo "Go to Cloud overview > Dashboard and check Project ID in the Project Info card."
   exit 1
 fi
-export USER_TAG=${1:-tkim}
+export USER_TAG=${2:-tkim}
 # https://cloud.google.com/compute/docs/regions-zones
-export REGION=${2:-us-central1}
+export REGION=${1:-us-central1}
 echo "REGION=$REGION"
 export ZONE=$REGION-a
 export LOCATION=$ZONE
