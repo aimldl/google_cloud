@@ -1,6 +1,6 @@
 # create_a_hub_vm
 #
-#   Prerequisite: run init4hub_vm before running this
+#   Prerequisite: run create_a_vpc_network_etc before running this
 
 # Function definition
 run() {
