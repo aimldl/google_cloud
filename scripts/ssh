@@ -27,7 +27,7 @@ if [[ -z "$PROJECT_ID" ]]; then
   echo "Go to Cloud overview > Dashboard and check Project ID in the Project Info card."
   exit 1
 fi
+export ZONE=a
 
-export ZONE=$REGION-c
-
-run "gcloud compute ssh $INSTANCE_NAME --project=$PROJECT_ID --zone=$ZONE"
+run "gcloud compute ssh $INSTANCE_NAME --project=$PROJECT_ID"
+#run "gcloud compute ssh $INSTANCE_NAME --project=$PROJECT_ID --zone=$ZONE"
