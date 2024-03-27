@@ -1,6 +1,4 @@
 # create_a_bucket
-#
-#   Prerequisite: run init4hub_vm before running this
 
 # Function definition
 run() {
@@ -19,12 +17,14 @@ if [[ -z "$PROJECT_ID" ]]; then
   echo "Go to Cloud overview > Dashboard and check Project ID in the Project Info card."
   exit 1
 fi
-export USER_ID=tkim
+export USER_TAG=${1:-tkim}
 # https://cloud.google.com/compute/docs/regions-zones
-export REGION=${1:-us-central1}
+export REGION=${2:-us-central1}
 echo "REGION=$REGION"
-#export ZONE=$REGION-a
+export ZONE=$REGION-a
+export LOCATION=$ZONE
+export UNIQUE_BUCKET_NAME=$USER_TAG-$PROJECT_ID-$REGION
 
-export BUCKET=$PROJECT_ID-$USER_ID-$REGION
-echo "Creating a bucket $BUCKET ..."
-run "gsutil mb -l $ZONE gs://$REGION"
+# Make Bucket
+echo "Creating a bucket $UNIQUE_BUCKET_NAME ..."
+run "gsutil mb -l $LOCATION -p $PROJECT_ID gs://$UNIQUE_BUCKET_NAME"
