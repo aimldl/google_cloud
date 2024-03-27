@@ -1,8 +1,4 @@
-# create_a_hub_vm
-#
-#   Prerequisites:
-#     * A VM instance has been created
-#     * It's also configured for an external access
+# gssh
 
 # Function definition
 run() {
