@@ -1,0 +1,123 @@
+# create_a_g2_vm
+#
+#   Prerequisite: run create_a_vpc_network_etc before running this
+
+# Function definition
+run() {
+  COMMAND=$1
+  echo "$COMMAND"
+  eval $COMMAND
+}
+
+# https://cloud.google.com/compute/docs/regions-zones
+export REGION=${1:-us-central1}
+echo "REGION=$REGION"
+echo "Setting the associated variables automatically..."
+
+export INSTANCE_NAME=g2-1xl4-${REGION}
+export PROJECT_ID=$(gcloud config list --format 'value(core.project)')
+if [[ -z "$PROJECT_ID" ]]; then
+  echo "PROJECT_ID is empty because the core.project property is not displayed."
+  echo "This means that you haven't explicitly set a default project for the gcloud CLI."
+  echo "Please set your project by running:"
+  echo "  $ gcloud config set project PROJECT_ID"
+  echo "To check the PROJECT_ID, go to Google Cloud Console and click Navigation Menu."
+  echo "Go to Cloud overview > Dashboard and check Project ID in the Project Info card."
+  exit 1
+fi
+
+export ZONE=a
+export LOCATION=$REGION-$ZONE
+export MACHINE_TYPE=g2-standard-96
+# https://cloud.google.com/compute/docs/images#list_of_public_images_available_on
+#  $ gcloud compute images list | grep ubuntu-2004
+export IMAGE_FAMILY=pytorch-latest-gpu
+export IMAGE_PROJECT=deeplearning-platform-release
+export IMAGE_NAME=base-deeplearning-nvidia-1
+export IMAGE_SIZE=200
+export SUBNET=custom-subnet-${REGION}
+export USER_TAG=${2:-tkim}
+export DEVICE_NAME=disk-$USER_TAG
+export DISK_TYPE=projects/injae-sandbox-340804/zones/asia-southeast1-b/diskTypes/pd-balanced
+# https://cloud.google.com/compute/docs/gpus#l4-gpus
+# https://cloud.google.com/compute/docs/accelerator-optimized-machines#g2-standard-vms
+
+export ACCELERATOR=type=nvidia-l4,count=8
+# For readability & convenience
+export TAG_NAME_HTTP=allow-http-${REGION}
+export TAG_NAME_SSH=allow-ssh-${REGION}
+# For readability & convenience
+export BUCKET_NAME=$USER_TAG-$PROJECT_ID-$REGION
+export HOST_PREFIX=$(whoami)
+export DATA_RO_DISK=$HOST_PREFIX-data
+export WORKER_COUNT=10
+
+export TIMEOUT_SECONDS=300  # Timeout after 5 minutes
+export SLEEP_INTERVAL=30    # seconds
+
+# 1. Create a VM instance using the created network and subnet
+#    https://cloud.google.com/sdk/gcloud/reference/compute/instances/create
+run "gcloud compute instances create $INSTANCE_NAME \
+--project=$PROJECT_ID \
+--zone=$LOCATION \
+--machine-type=$MACHINE_TYPE \
+--network-interface=network-tier=PREMIUM,stack-type=IPV4_ONLY,subnet=$SUBNET \
+--image-family=$IMAGE_FAMILY \
+--image-project=$IMAGE_PROJECT \
+--accelerator=$ACCELERATOR \
+--metadata="install-nvidia-drive=True" \
+--tags=$TAG_NAME_HTTP,$TAG_NAME_SSH"
+#--create-disk=auto-delete=yes,boot=yes,device-name=$DEVICE_NAME,image=$IMAGE_NAME,mode=rw,size=$IMAGE_SIZE,type=$DISK_TYPE \
+#--metadata=enable-oslogin=true \
+#--maintenance-policy=TERMINATE \
+#--provisioning-model=STANDARD \
+#--no-shielded-secure-boot \
+#--shielded-vtpm \
+#--shielded-integrity-monitoring \
+#--labels=goog-ec-src=vm_add-gcloud \
+#--reservation-affinity=any \
+#--scopes=https://www.googleapis.com/auth/devstorage.read_only,https://www.googleapis.com/auth/logging.write,https://www.googleapis.com/auth/monitoring.write,https://www.googleapis.com/auth/servicecontrol,https://www.googleapis.com/auth/service.management.readonly,https://www.googleapis.com/auth/trace.append
+
+
+# ERROR: (gcloud.compute.instances.create) Could not fetch resource:
+# - Constraint constraints/compute.vmExternalIpAccess violated for project 1234567890ab. Add instance projects/llm-env/zones/us-central1-c/instances/hub-us-central1 to the constraint to use external IP with it.
+# Note: 1234567890ab is a dummy number.
+
+# 2. Wait
+echo "Waiting until ${INSTANCE_NAME} is created..."
+start_time=$(date +%s)
+while true; do
+  # Polling: check the instance status repeatedly until it's created or in the "RUNNING" state
+  status=$(gcloud compute instances describe ${INSTANCE_NAME} --zone=${LOCATION} --format='get(status)')
+  if [[ $status == "RUNNING" ]]; then
+    echo "Instance ${INSTANCE_NAME} is created and running"
+    break
+  fi
+
+  # Timeout: It's good practice to include a timeout to prevent the script from hanging indefinitely if something goes wrong.
+  current_time=$(date +%s)
+  elapsed_seconds=$(( current_time - start_time ))
+  if [[ $elapsed_seconds -gt $TIMEOUT_SECONDS ]]; then
+    echo "Timeout waiting for instance creation."
+    exit 1
+  fi
+  sleep $SLEEP_INTERVAL
+done
+
+# 3. Connect the VM instance to the firewall rules
+#   https://cloud.google.com/sdk/gcloud/reference/compute/instances/add-tags
+
+# Prerequisite:
+#   The two firewalls have already been created
+#   If not, run init4hub_vm
+# 
+
+run "gcloud compute instances add-tags $INSTANCE_NAME \
+--project=$PROJECT_ID \
+--zone=$LOCATION \
+--tags=$TAG_NAME_HTTP"
+
+run "gcloud compute instances add-tags $INSTANCE_NAME \
+--project=$PROJECT_ID \
+--zone=$LOCATION \
+--tags=$TAG_NAME_SSH"
