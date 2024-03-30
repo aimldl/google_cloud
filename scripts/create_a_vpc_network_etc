@@ -82,6 +82,7 @@ echo "  Create a service account $SERVICE_ACCOUNT_NAME..."
 run "gcloud iam service-accounts create $SERVICE_ACCOUNT_NAME\
     --project=$PROJECT_ID \
     --display-name "Custom Service Account""
+#    --display-name 'Custom Service Account'"  # TODO: Double-check the above change is correct
 
 echo ""
 echo "Create a secret/service account key $SECRET_NAME and add the key to Secrete Manager ..."
@@ -94,7 +95,7 @@ run "gcloud secrets create $SECRET_NAME\
 SERVICE_ACCOUNT_EMAIL=$(gcloud iam service-accounts list \
     --format='value(email)' \
     --project=$PROJECT_ID \
-    --filter='displayName:"Custom Service Account"')
+    --filter='displayName: Custom Service Account')  # TODO: Fix Custom to "Custom Service Account"
 echo $SERVICE_ACCOUNT_EMAIL
 
 # TODO:
