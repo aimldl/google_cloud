@@ -29,12 +29,41 @@ fi
 export ZONE=a
 export LOCATION=$REGION-$ZONE
 export MACHINE_TYPE=g2-standard-96
-# https://cloud.google.com/compute/docs/images#list_of_public_images_available_on
-#  $ gcloud compute images list | grep ubuntu-2004
+# https://cloud.google.com/compute/docs/gpus/create-vm-with-gpus
+#   Use a Deep Learning VM image with 
+#     * a GPU driver pre-installed and packages like TensorFlow and PyTorch
+#   Alternatively, you can use any public or custome image, 
+#     but some images might require a unique driver or install process.
+#   https://cloud.google.com/compute/docs/images#list_of_public_images_available_on
+#   To list the public images, run:
+#     $ gcloud compute images list | grep ubuntu-2004
+
+# For a Deep Learning VM image
 export IMAGE_FAMILY=pytorch-latest-gpu
 export IMAGE_PROJECT=deeplearning-platform-release
-export IMAGE_NAME=base-deeplearning-nvidia-1
-export IMAGE_SIZE=200
+#export IMAGE_NAME=base-deeplearning-nvidia-1
+# For a Deep Learning VM image
+#export IMAGE_SIZE=200
+# Caution: You can't use Deep Learning VM Images as boot disks for your VMs that use G2 machine types.
+export BOOT_DISK_SIZE=5000  # in GB, It should be at least 40GB
+export IMAGE_FAMILY=pytorch-latest-gpu
+export IMAGE_PROJECT=deeplearning-platform-release
+
+# IMAGE: an OS that supports GPUs. 
+#   If you want to use the latest image in an image family, 
+#   replace the --image flag with the --image-family flag and 
+#   set its value to an image family that supports GPUs. 
+#   For example: --image-family=rocky-linux-8-optimized-gcp.
+#   You can also specify a custom image or Deep Learning VM Images.
+# IMAGE_PROJECT: the Compute Engine image project that the OS image belongs to. 
+#   If using a custom image or Deep Learning VM Images, specify the project that those images belong to.
+
+# https://cloud.google.com/compute/docs/gpus/create-gpu-vm-accelerator-optimized
+# Required roles: roles/compute.instanceAdmin.v1
+# Use Google Cloud Console to add the new role.
+# In the Navigation Menu, go to IAM and click the Edit principal button for your Principal. 
+#   e.g. admin@ldap.altostrat.com
+
 export SUBNET=custom-subnet-${REGION}
 export USER_TAG=${2:-tkim}
 export DEVICE_NAME=disk-$USER_TAG
@@ -57,21 +86,30 @@ export SLEEP_INTERVAL=30    # seconds
 
 # 1. Create a VM instance using the created network and subnet
 #    https://cloud.google.com/sdk/gcloud/reference/compute/instances/create
+# 1*. Create a VM that has attached GPUs
+#    https://cloud.google.com/compute/docs/gpus/create-gpu-vm-accelerator-optimized#create-vm
+echo "Warning: VMs with GPUs can't live migrate, ensure to set the --maintenance-policy=TERMINATE flag."
+# ERROR: (gcloud.compute.instances.create) Could not fetch resource:
+# - Instances with guest accelerators do not support live migration.
+echo "Note: Secure Boot was disabled to allow the installation or OSs and application incompatible with Secure Boot"
+echo "Learn about the limitations at https://cloud.google.com/compute/docs/gpus/create-gpu-vm-accelerator-optimized#g2-standard"
+echo ""
 run "gcloud compute instances create $INSTANCE_NAME \
 --project=$PROJECT_ID \
 --zone=$LOCATION \
 --machine-type=$MACHINE_TYPE \
 --network-interface=network-tier=PREMIUM,stack-type=IPV4_ONLY,subnet=$SUBNET \
+--boot-disk-size=$BOOT_DISK_SIZE \
 --image-family=$IMAGE_FAMILY \
 --image-project=$IMAGE_PROJECT \
 --accelerator=$ACCELERATOR \
+--maintenance-policy=TERMINATE \
+--no-shielded-secure-boot \
 --metadata="install-nvidia-drive=True" \
 --tags=$TAG_NAME_HTTP,$TAG_NAME_SSH"
 #--create-disk=auto-delete=yes,boot=yes,device-name=$DEVICE_NAME,image=$IMAGE_NAME,mode=rw,size=$IMAGE_SIZE,type=$DISK_TYPE \
 #--metadata=enable-oslogin=true \
-#--maintenance-policy=TERMINATE \
 #--provisioning-model=STANDARD \
-#--no-shielded-secure-boot \
 #--shielded-vtpm \
 #--shielded-integrity-monitoring \
 #--labels=goog-ec-src=vm_add-gcloud \
