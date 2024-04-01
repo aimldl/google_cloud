@@ -77,8 +77,23 @@ run "gcloud compute firewall-rules create $FIREWALL_NAME_SSH \
 --priority=$FIREWALL_PRIORITY"
 # --source-ranges=$IP_RANGE  # optional
 
+# TODO: if the service account and secret exist already, don't create new ones.
+
+# Create a service account custom-service-account...
+# gcloud iam service-accounts create custom-service-account    --project=llm-env     --display-name Custom
+# ERROR: (gcloud.iam.service-accounts.create) Resource in projects [llm-env] is the subject of a conflict: Service account custom-service-account already exists within project projects/llm-env.
+# - '@type': type.googleapis.com/google.rpc.ResourceInfo
+#  resourceName: projects/llm-env/serviceAccounts/custom-service-account@llm-env.iam.gserviceaccount.com
+
+# Create a secret/service account key custom-secret and add the key to Secrete Manager ...
+# gcloud secrets create custom-secret    --project=llm-env     --replication-policy=automatic
+# ERROR: (gcloud.secrets.create) Resource in projects [llm-env] is the subject of a conflict: Secret [projects/950418483561/secrets/custom-secret] already exists.
+# custom-service-account@llm-env.iam.gserviceaccount.com
+
+# TODO: if the service account and secret exist already, don't create new ones.
+
 echo ""
-echo "  Create a service account $SERVICE_ACCOUNT_NAME..."
+echo "Create a service account $SERVICE_ACCOUNT_NAME..."
 run "gcloud iam service-accounts create $SERVICE_ACCOUNT_NAME\
     --project=$PROJECT_ID \
     --display-name "Custom Service Account""
