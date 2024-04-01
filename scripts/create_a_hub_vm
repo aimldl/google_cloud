@@ -26,7 +26,8 @@ if [[ -z "$PROJECT_ID" ]]; then
   exit 1
 fi
 
-export ZONE=$REGION-a
+export ZONE=b
+export LOCATION=$REGION-$ZONE
 export MACHINE_TYPE=e2-medium
 # https://cloud.google.com/compute/docs/images#list_of_public_images_available_on
 #  $ gcloud compute images list | grep ubuntu-2004
@@ -35,63 +36,18 @@ export IMAGE_FAMILY=ubuntu-2004-lts
 export IMAGE_PROJECT=ubuntu-os-cloud
 export SUBNET=custom-subnet-${REGION}
 
-export TIMEOUT_SECONDS=300  # Timeout after 5 minutes
-export SLEEP_INTERVAL=30    # seconds
-
-# 1. Create a VM instance using the created network and subnet
-#    https://cloud.google.com/sdk/gcloud/reference/compute/instances/create
-run "gcloud compute instances create $INSTANCE_NAME \
---project=$PROJECT_ID \
---zone=$ZONE \
---machine-type=$MACHINE_TYPE \
---image-family=$IMAGE_FAMILY \
---image-project=$IMAGE_PROJECT \
---network-interface=network-tier=PREMIUM,stack-type=IPV4_ONLY,subnet=$SUBNET"
-
-# ERROR: (gcloud.compute.instances.create) Could not fetch resource:
-# - Constraint constraints/compute.vmExternalIpAccess violated for project 1234567890ab. Add instance projects/llm-env/zones/us-central1-c/instances/hub-us-central1 to the constraint to use external IP with it.
-# Note: 1234567890ab is a dummy number.
-
-# 2. Wait
-echo "Waiting until ${INSTANCE_NAME} is created..."
-start_time=$(date +%s)
-while true; do
-  # Polling: check the instance status repeatedly until it's created or in the "RUNNING" state
-  status=$(gcloud compute instances describe ${INSTANCE_NAME} --zone=${ZONE} --format='get(status)')
-  if [[ $status == "RUNNING" ]]; then
-    echo "Instance ${INSTANCE_NAME} is created and running"
-    break
-  fi
-
-  # Timeout: It's good practice to include a timeout to prevent the script from hanging indefinitely if something goes wrong.
-  current_time=$(date +%s)
-  elapsed_seconds=$(( current_time - start_time ))
-  if [[ $elapsed_seconds -gt $TIMEOUT_SECONDS ]]; then
-    echo "Timeout waiting for instance creation."
-    exit 1
-  fi
-  sleep $SLEEP_INTERVAL
-done
-
-# 3. Connect the VM instance to the firewall rules
-#   https://cloud.google.com/sdk/gcloud/reference/compute/instances/add-tags
-
-# Prerequisite:
-#   The two firewalls have already been created
-#   If not, run init4hub_vm
-# 
-
 # For readability & convenience
 export TAG_NAME_HTTP=allow-http-${REGION}
 export TAG_NAME_SSH=allow-ssh-${REGION}
 # For readability & convenience
 
-run "gcloud compute instances add-tags $INSTANCE_NAME \
+# Create a VM instance using the created network and subnet
+#   https://cloud.google.com/sdk/gcloud/reference/compute/instances/create
+run "gcloud compute instances create $INSTANCE_NAME \
 --project=$PROJECT_ID \
---zone=$ZONE \
---tags=$TAG_NAME_HTTP"
-
-run "gcloud compute instances add-tags $INSTANCE_NAME \
---project=$PROJECT_ID \
---zone=$ZONE \
---tags=$TAG_NAME_SSH"
+--zone=$LOCATION \
+--machine-type=$MACHINE_TYPE \
+--image-family=$IMAGE_FAMILY \
+--image-project=$IMAGE_PROJECT \
+--network-interface=network-tier=PREMIUM,stack-type=IPV4_ONLY,subnet=$SUBNET \
+--tags=$TAG_NAME_HTTP,$TAG_NAME_SSH"

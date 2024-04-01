@@ -1,4 +1,4 @@
-# create_a_g2_vm
+# create_a_hub_vm
 #
 #   Prerequisite: run create_a_vpc_network_etc before running this
 
@@ -14,7 +14,7 @@ export REGION=${1:-us-central1}
 echo "REGION=$REGION"
 echo "Setting the associated variables automatically..."
 
-export INSTANCE_NAME=g2-1xl4-${REGION}
+export INSTANCE_NAME=hub-${REGION}
 export PROJECT_ID=$(gcloud config list --format 'value(core.project)')
 if [[ -z "$PROJECT_ID" ]]; then
   echo "PROJECT_ID is empty because the core.project property is not displayed."
@@ -26,42 +26,28 @@ if [[ -z "$PROJECT_ID" ]]; then
   exit 1
 fi
 
-export ZONE=a
-export LOCATION=$REGION-$ZONE
-export MACHINE_TYPE=g2-standard-96
+export ZONE=$REGION-a
+export MACHINE_TYPE=e2-medium
+# https://cloud.google.com/compute/docs/images#list_of_public_images_available_on
+#  $ gcloud compute images list | grep ubuntu-2004
+export IMAGE_FAMILY=ubuntu-2004-lts
+#export IMAGE_FAMILY=ubuntu-minimal-2204-lts
+export IMAGE_PROJECT=ubuntu-os-cloud
 export SUBNET=custom-subnet-${REGION}
-export TAG_NAME_HTTP=allow-http-${REGION}  # For readability & convenience
-export TAG_NAME_SSH=allow-ssh-${REGION}    # For readability & convenience
-export ACCELERATOR=type=nvidia-l4,count=8
-
-# For a Deep Learning VM image
-export BOOT_DISK_SIZE=500                  # in GB, It should be at least 40GB
-export IMAGE_FAMILY=pytorch-latest-gpu
-export IMAGE_PROJECT=deeplearning-platform-release
 
 # 1. Create a VM instance using the created network and subnet
-#    "Create a VM that has attached GPUs"
-#    https://cloud.google.com/compute/docs/gpus/create-gpu-vm-accelerator-optimized#create-vm
-echo "Warning: VMs with GPUs can't live migrate, ensure to set the --maintenance-policy=TERMINATE flag."
-# ERROR: (gcloud.compute.instances.create) Could not fetch resource:
-# - Instances with guest accelerators do not support live migration.
-echo "Note: Secure Boot was disabled to allow the installation or OSs and application incompatible with Secure Boot"
-echo "Learn about the limitations at https://cloud.google.com/compute/docs/gpus/create-gpu-vm-accelerator-optimized#g2-standard"
-echo ""
+#    https://cloud.google.com/sdk/gcloud/reference/compute/instances/create
 run "gcloud compute instances create $INSTANCE_NAME \
-gcloud compute instances create $INSTANCE_NAME \
 --project=$PROJECT_ID \
---zone=$LOCATION \
+--zone=$ZONE \
 --machine-type=$MACHINE_TYPE \
---network-interface=network-tier=PREMIUM,stack-type=IPV4_ONLY,subnet=$SUBNET \
---tags=$TAG_NAME_HTTP,$TAG_NAME_SSH \
---accelerator=$ACCELERATOR \
---boot-disk-size=$BOOT_DISK_SIZE \
 --image-family=$IMAGE_FAMILY \
 --image-project=$IMAGE_PROJECT \
---metadata="install-nvidia-drive=True" \
---maintenance-policy=TERMINATE \
---no-shielded-secure-boot"
+--network-interface=network-tier=PREMIUM,stack-type=IPV4_ONLY,subnet=$SUBNET"
+
+# ERROR: (gcloud.compute.instances.create) Could not fetch resource:
+# - Constraint constraints/compute.vmExternalIpAccess violated for project 1234567890ab. Add instance projects/llm-env/zones/us-central1-c/instances/hub-us-central1 to the constraint to use external IP with it.
+# Note: 1234567890ab is a dummy number.
 
 # 2. Wait
 
@@ -72,7 +58,7 @@ echo "Waiting until ${INSTANCE_NAME} is created..."
 start_time=$(date +%s)
 while true; do
   # Polling: check the instance status repeatedly until it's created or in the "RUNNING" state
-  status=$(gcloud compute instances describe ${INSTANCE_NAME} --zone=${LOCATION} --format='get(status)')
+  status=$(gcloud compute instances describe ${INSTANCE_NAME} --zone=${ZONE} --format='get(status)')
   if [[ $status == "RUNNING" ]]; then
     echo "Instance ${INSTANCE_NAME} is created and running"
     break
@@ -91,15 +77,22 @@ done
 # 3. Connect the VM instance to the firewall rules
 #   https://cloud.google.com/sdk/gcloud/reference/compute/instances/add-tags
 
-# Prerequisite: the two firewalls have already been created
-#               If not, run create_a_vpc_network_etc
+# Prerequisite:
+#   The two firewalls have already been created
+#   If not, run init4hub_vm
+# 
+
+# For readability & convenience
+export TAG_NAME_HTTP=allow-http-${REGION}
+export TAG_NAME_SSH=allow-ssh-${REGION}
+# For readability & convenience
 
 run "gcloud compute instances add-tags $INSTANCE_NAME \
 --project=$PROJECT_ID \
---zone=$LOCATION \
+--zone=$ZONE \
 --tags=$TAG_NAME_HTTP"
 
 run "gcloud compute instances add-tags $INSTANCE_NAME \
 --project=$PROJECT_ID \
---zone=$LOCATION \
+--zone=$ZONE \
 --tags=$TAG_NAME_SSH"
