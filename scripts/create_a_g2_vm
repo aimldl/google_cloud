@@ -39,7 +39,7 @@ export BOOT_DISK_SIZE=500                  # in GB, It should be at least 40GB
 export IMAGE_FAMILY=pytorch-latest-gpu
 export IMAGE_PROJECT=deeplearning-platform-release
 
-# 1. Create a VM instance using the created network and subnet
+# Create a VM instance using the created network and subnet
 #    "Create a VM that has attached GPUs"
 #    https://cloud.google.com/compute/docs/gpus/create-gpu-vm-accelerator-optimized#create-vm
 echo "Warning: VMs with GPUs can't live migrate, ensure to set the --maintenance-policy=TERMINATE flag."
@@ -62,44 +62,3 @@ gcloud compute instances create $INSTANCE_NAME \
 --metadata="install-nvidia-drive=True" \
 --maintenance-policy=TERMINATE \
 --no-shielded-secure-boot"
-
-# 2. Wait
-
-export TIMEOUT_SECONDS=300  # Timeout after 5 minutes
-export SLEEP_INTERVAL=30    # seconds
-
-echo "Waiting until ${INSTANCE_NAME} is created..."
-start_time=$(date +%s)
-while true; do
-  # Polling: check the instance status repeatedly until it's created or in the "RUNNING" state
-  status=$(gcloud compute instances describe ${INSTANCE_NAME} --zone=${LOCATION} --format='get(status)')
-  if [[ $status == "RUNNING" ]]; then
-    echo "Instance ${INSTANCE_NAME} is created and running"
-    break
-  fi
-
-  # Timeout: It's good practice to include a timeout to prevent the script from hanging indefinitely if something goes wrong.
-  current_time=$(date +%s)
-  elapsed_seconds=$(( current_time - start_time ))
-  if [[ $elapsed_seconds -gt $TIMEOUT_SECONDS ]]; then
-    echo "Timeout waiting for instance creation."
-    exit 1
-  fi
-  sleep $SLEEP_INTERVAL
-done
-
-# 3. Connect the VM instance to the firewall rules
-#   https://cloud.google.com/sdk/gcloud/reference/compute/instances/add-tags
-
-# Prerequisite: the two firewalls have already been created
-#               If not, run create_a_vpc_network_etc
-
-run "gcloud compute instances add-tags $INSTANCE_NAME \
---project=$PROJECT_ID \
---zone=$LOCATION \
---tags=$TAG_NAME_HTTP"
-
-run "gcloud compute instances add-tags $INSTANCE_NAME \
---project=$PROJECT_ID \
---zone=$LOCATION \
---tags=$TAG_NAME_SSH"
