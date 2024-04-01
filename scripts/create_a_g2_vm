@@ -9,6 +9,20 @@ run() {
   eval $COMMAND
 }
 
+print_warning() {
+echo ""
+echo "For details, refer to 'Create a VM that has attached GPUs' available at:"
+echo "  https://cloud.google.com/compute/docs/gpus/create-gpu-vm-accelerator-optimize"
+echo ""
+echo "Warning: VMs with GPUs can't live migrate, ensure to set the --maintenance-policy=TERMINATE flag."
+echo "Otherwise, you'll see the following error."
+echo "  ERROR: (gcloud.compute.instances.create) Could not fetch resource:
+  # - Instances with guest accelerators do not support live migration."
+echo "Note: Secure Boot was disabled to allow the installation or OSs and application incompatible with Secure Boot"
+echo "Learn about the limitations at https://cloud.google.com/compute/docs/gpus/create-gpu-vm-accelerator-optimized#g2-standard"
+echo ""
+}
+
 # https://cloud.google.com/compute/docs/regions-zones
 export REGION=${1:-us-central1}
 echo "REGION=$REGION"
@@ -32,24 +46,25 @@ export MACHINE_TYPE=g2-standard-96
 export SUBNET=custom-subnet-${REGION}
 export TAG_NAME_HTTP=allow-http-${REGION}  # For readability & convenience
 export TAG_NAME_SSH=allow-ssh-${REGION}    # For readability & convenience
-export ACCELERATOR=type=nvidia-l4,count=8
+# https://cloud.google.com/compute/docs/accelerator-optimized-machines#g2-standard-vms
+export GPU_MODEL=nvidia-l4
+export GPU_COUNT=8
+export ACCELERATOR=type=$GPU_MODEL,count=$GPU_COUNT
 
 # For a Deep Learning VM image
 export BOOT_DISK_SIZE=500                  # in GB, It should be at least 40GB
 export IMAGE_FAMILY=pytorch-latest-gpu
 export IMAGE_PROJECT=deeplearning-platform-release
 
+# create-disk
+export USER_TAG=${2:-tkim}
+export DATA_DISK_NAME=data-disk-$USER_TAG-$LOCATION
+export DISK_TYPE=pd-standard
+export DATA_DISK_SIZE=600GB
+
 # Create a VM instance using the created network and subnet
-#    "Create a VM that has attached GPUs"
-#    https://cloud.google.com/compute/docs/gpus/create-gpu-vm-accelerator-optimized#create-vm
-echo "Warning: VMs with GPUs can't live migrate, ensure to set the --maintenance-policy=TERMINATE flag."
-# ERROR: (gcloud.compute.instances.create) Could not fetch resource:
-# - Instances with guest accelerators do not support live migration.
-echo "Note: Secure Boot was disabled to allow the installation or OSs and application incompatible with Secure Boot"
-echo "Learn about the limitations at https://cloud.google.com/compute/docs/gpus/create-gpu-vm-accelerator-optimized#g2-standard"
-echo ""
+print_warning
 run "gcloud compute instances create $INSTANCE_NAME \
-gcloud compute instances create $INSTANCE_NAME \
 --project=$PROJECT_ID \
 --zone=$LOCATION \
 --machine-type=$MACHINE_TYPE \
@@ -59,6 +74,7 @@ gcloud compute instances create $INSTANCE_NAME \
 --boot-disk-size=$BOOT_DISK_SIZE \
 --image-family=$IMAGE_FAMILY \
 --image-project=$IMAGE_PROJECT \
---metadata="install-nvidia-drive=True" \
+--create-disk=name=$DATA_DISK_NAME,mode=rw,type=$DISK_TYPE,size=$DATA_DISK_SIZE,auto-delete=yes,boot=no \
+--metadata="install-nvidia-drive=True,enable-oslogin=true" \
 --maintenance-policy=TERMINATE \
 --no-shielded-secure-boot"
