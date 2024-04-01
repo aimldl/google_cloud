@@ -1,6 +1,4 @@
 # create_g2_vms
-#
-#   Prerequisite: run init4hub_vm before running this
 
 # Function definition
 run() {
@@ -14,7 +12,7 @@ export REGION=${1:-us-central1}
 echo "REGION=$REGION"
 echo "Setting the associated variables automatically..."
 
-export INSTANCE_NAME=g2-${REGION}
+export INSTANCE_NAME=g2-1xl4-${REGION}
 export PROJECT_ID=$(gcloud config list --format 'value(core.project)')
 if [[ -z "$PROJECT_ID" ]]; then
   echo "PROJECT_ID is empty because the core.project property is not displayed."
@@ -29,14 +27,14 @@ export SERVICE_ACCOUNT=$(gcloud iam service-accounts list \
     --format='value(email)' \
     --project=$PROJECT_ID \
     --filter='displayName:"My Service Account"')
-#export ZONE=$REGION-c
-export ZONE=$REGION-a
+export ZONE=a
+export LOCATION=$REGION-$ZONE
 export MACHINE_TYPE=g2-standard-96
 export IMAGE_FAMILY=pytorch-latest-gpu
 #export SUBNET=custom-subnetwork-${REGION}
 export SUBNET=default
-export USER_NAME=tkim
-export DEVICE_NAME=$USER_NAME-disk
+export USER_TAG=tkim
+export DEVICE_NAME=disk-$USER_TAG
 #export IMAGE_NAME=base-deeplearning-nvidia-1
 export IMAGE_FAMILY=pytorch-latest-gpu 
 export IMAGE_PROJECT=deeplearning-platform-release
@@ -47,7 +45,7 @@ export DISK_TYPE=projects/injae-sandbox-340804/zones/asia-southeast1-b/diskTypes
 # https://cloud.google.com/compute/docs/accelerator-optimized-machines#g2-standard-vms
 export ACCELERATOR=type=nvidia-l4,count=8
 export HOST_PREFIX=$(whoami)
-export BUCKET=$PROJECT_ID-TKIM-$REGION
+export BUCKET_NAME=$USER_TAG-$PROJECT_ID-$LOCATION
 export DATA_RO_DISK=$HOST_PREFIX-data
 export WORKER_COUNT=10
 
@@ -60,7 +58,7 @@ echo ""
 run "gcloud compute instances create $INSTANCE_NAME \
 --project=$PROJECT_ID \
 --service-account=$SERVICE_ACCOUNT \
---zone=$ZONE \
+--zone=$LOCATION \
 --machine-type=$MACHINE_TYPE \
 #--create-disk=auto-delete=yes,boot=yes,device-name=$DEVICE_NAME,image=$IMAGE_NAME,mode=rw,size=$IMAGE_SIZE,type=$DISK_TYPE \
 --network-interface=network-tier=PREMIUM,stack-type=IPV4_ONLY,subnet=$SUBNET \
@@ -70,6 +68,7 @@ run "gcloud compute instances create $INSTANCE_NAME \
 --accelerator=type=$ACCELERATOR \
 --metadata="install-nvidia-drive=True" \
 --tags=http-server,https-server
+#--tags=http-server,https-server
 #--metadata=enable-oslogin=true \
 #--maintenance-policy=TERMINATE \
 #--provisioning-model=STANDARD \
