@@ -33,7 +33,8 @@ run() {
 }
 
 # You may change this part
-FILE=train_data.jsonl
+#FILE=train_data.jsonl
+FILE=enwiki-latest-pages-articles.xml.bz2
 
 #USER_TAG=${1:-tkim}
 USER_TAG=${1:-slurm0}
