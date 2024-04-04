@@ -48,9 +48,9 @@ run "gsutil cp $FILE gs://$MY_BUCKET"
 
 # TODO: troubleshoot
 # Tip. Create a temp file and copy it first as a test.
-touch file.tmp
+# touch file.tmp
 #FILE_LIST="file.tmp"  # for a test
-FILE_LIST="file.tmp train_data.jsonl"
+# FILE_LIST="file.tmp train_data.jsonl"
 #FILE_LIST="file.tmp train_data.jsonl enwiki-latest-pages-articles.xml.bz2"
 
 #run "cat $FILE_LIST | gsutil -m cp -I gs://$MY_BUCKET"
