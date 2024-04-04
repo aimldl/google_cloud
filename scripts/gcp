@@ -33,17 +33,17 @@ run() {
 }
 
 # https://cloud.google.com/compute/docs/regions-zones
-export REGION=${3:-us-central1}
-export LOCATION=$REGION
+REGION=${3:-us-central1}
+LOCATION=$REGION
 
 # You may change this part
-export FILE_LIST="test_scp.tmp train_data.jsonl enwiki-latest-pages-articles.xml.bz2"
+FILE_LIST="test_scp.tmp train_data.jsonl enwiki-latest-pages-articles.xml.bz2"
 
-export USER_TAG=${2:-tkim}
-export BUCKET_NAME=${3:-public-bucket}
-export UNIQUE_BUCKET_NAME=$USER_TAG-$BUCKET_NAME-$REGION
+USER_TAG=${2:-tkim}
+BUCKET_NAME=${3:-public-bucket}
+UNIQUE_BUCKET_NAME=$USER_TAG-$BUCKET_NAME-$REGION
 # You may change this part
 
-export MY_BUCKET=$UNIQUE_BUCKET_NAME
+MY_BUCKET=$UNIQUE_BUCKET_NAME
 
 run "echo $FILE_LIST | gsutil -m cp -I gs://$MY_BUCKET"
