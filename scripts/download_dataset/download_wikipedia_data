@@ -1,0 +1,13 @@
+#!/bin/bash
+# download_wikipedia_data
+
+# Function definition
+run() {
+  COMMAND=$1
+  echo "$COMMAND"
+  eval $COMMAND
+}
+
+# 1. Download
+LINK2DATA=https://dumps.wikimedia.org/enwiki/latest/enwiki-latest-pages-articles.xml.bz2
+run "nohup wget $LINK2DATA &"
