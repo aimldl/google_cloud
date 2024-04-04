@@ -1,4 +1,6 @@
-# create_a_bucket
+#!/bin/bash
+#  make_all_objects_in_a_bucket_publicly_readable
+#    https://cloud.google.com/storage/docs/access-control/making-data-public
 
 # Function definition
 run() {
@@ -22,9 +24,9 @@ export USER_TAG=${2:-tkim}
 export REGION=${1:-us-central1}
 echo "REGION=$REGION"
 export LOCATION=$REGION
-#export BUCKET_NAME=$PROJECT_ID
 export BUCKET_NAME=${3:-public-bucket}
 export UNIQUE_BUCKET_NAME=$USER_TAG-$BUCKET_NAME-$LOCATION
 
-# Make Bucket
-run "gsutil mb -l $LOCATION -p $PROJECT_ID gs://$UNIQUE_BUCKET_NAME"
+# https://cloud.google.com/storage/docs/access-control/making-data-public#buckets
+echo "Making all objects in a bucket publicly readable ..."
+run "gcloud storage buckets add-iam-policy-binding gs://$UNIQUE_BUCKET_NAME --member=allUsers --role=roles/storage.objectViewer"

@@ -1,0 +1,41 @@
+#!/bin/bash
+#  gcopy_files
+#    https://cloud.google.com/sdk/gcloud/reference/compute/copy-files
+#    Note: This command does not work for Windows VMs.
+#
+#  `gcloud compute copy-files`
+#    copies files between a virtual machine instance and your local machine 
+#    using the scp command.
+#   Examples:
+#     # From a VM's directory to your local host
+#     $ gcloud compute copy-files example-instance:~/REMOTE-DIR ~/LOCAL-DIR --zone=us-central1-a
+#
+#     # From your local host to a VM
+#     $ gcloud compute copy-files ~/LOCAL-FILE-1 ~/LOCAL-FILE-2 example-instance:~/REMOTE-DIR --zone=us-central1-a
+
+# Function definition
+run() {
+  COMMAND=$1
+  echo "$COMMAND"
+  eval $COMMAND
+}
+
+# https://cloud.google.com/compute/docs/regions-zones
+export REGION=${3:-us-central1}
+export ZONE=a
+export LOCATION=$REGION-$ZONE
+
+# You may change this part
+export DEFAULT_SOURCE=./train_data.jsonl
+
+export USER_TAG=tkim
+export BUCKET_NAME=${3:-public-bucket}
+export UNIQUE_BUCKET_NAME=$USER_TAG-$BUCKET_NAME-$LOCATION
+export INSTANCE_NAME=test
+export DEFAULT_TARGET=$INSTANCE_NAME:~/temp
+# You may change this part
+
+export SOURCE=${1:-$DEFAULT_SOURCE}
+export TARGET=${2:-$DEFAULT_TARGET}
+
+run "gcloud compute copy-files $SOURCE $TARGET --zone=$LOCATION"
