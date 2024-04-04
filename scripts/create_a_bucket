@@ -30,3 +30,6 @@ UNIQUE_BUCKET_NAME=$USER_TAG-$BUCKET_NAME-$LOCATION
 
 # Make Bucket
 run "gsutil mb -l $LOCATION -p $PROJECT_ID gs://$UNIQUE_BUCKET_NAME"
+
+# The alternative is to use the `gcloud storage buckets create` command
+#   https://cloud.google.com/sdk/gcloud/reference/compute/scp
