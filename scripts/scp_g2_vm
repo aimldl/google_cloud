@@ -1,0 +1,41 @@
+#!/bin/bash
+# scp_g2_vm
+
+# Function definition
+run() {
+  COMMAND=$1
+  echo "$COMMAND"
+  eval $COMMAND
+}
+
+# https://cloud.google.com/compute/docs/regions-zones
+export REGION=${1:-us-central1}
+echo "REGION=$REGION"
+echo "Setting the associated variables automatically..."
+
+export INSTANCE_NAME=g2-1xl4-${REGION}
+export PROJECT_ID=$(gcloud config list --format 'value(core.project)')
+if [[ -z "$PROJECT_ID" ]]; then
+  echo "PROJECT_ID is empty because the core.project property is not displayed."
+  echo "This means that you haven't explicitly set a default project for the gcloud CLI."
+  echo "Please set your project by running:"
+  echo "  $ gcloud config set project PROJECT_ID"
+  echo "To check the PROJECT_ID, go to Google Cloud Console and click Navigation Menu."
+  echo "Go to Cloud overview > Dashboard and check Project ID in the Project Info card."
+  exit 1
+fi
+export ZONE=a
+export LOCATION=$REGION-$ZONE
+
+# The ssh command for reference
+#run "gcloud compute ssh $INSTANCE_NAME --project=$PROJECT_ID --zone=$LOCATION"
+
+export USERNAME=admin@thekim.altostrat.com
+export EXTERNAL_IP=34.170.187.187
+export SOURCE="/home/admin_thekim_altostrat_com/downloads/test_scp.tmp"
+#export SOURCE="/home/admin_thekim_altostrat_com/downloads/train_data.jsonl"
+export TARGET="."
+#run "scp $USERNAME@$EXTERNAL_IP:$SOURCE $TARGET"
+#run "gcloud compute scp $USERNAME@$PROJECT_ID:$LOCATION:$INSTANCE_NAME:$SOURCE $TARGET"
+run "gcloud compute copy_files $PROJECT_ID $LOCATION $INSTANCE_NAME:$SOURCE $TARGET"
+

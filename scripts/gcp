@@ -1,0 +1,49 @@
+#!/bin/bash
+#  gcp gsutil cp
+#    https://cloud.google.com/storage/docs/gsutil/commands/cp
+#
+#  `gsutil cps`
+#    copy data between your local file system and the cloud
+#
+#   Examples:
+#     # Upload all text files to a bucket
+#     $ gsutil cp *.txt gs://$MY_BUCKET
+#
+#     # Download all text files from a bucket
+#     $ gsutil cp gs://$MY_BUCKET/*.txt .
+#
+#     # The -r option to copy an entire directory tree
+#     $ gsutil cp -r $DIR gs://$MY_BUCKET
+#
+#     # The -m option for a parallel multi-threaded/multi-processing copy
+#     $ gsutil -m cp -r $DIR gs://$MY_BUCKET
+#
+#     # The -I option to specify a list
+#     #   to upload
+#     $ cat $FILE_LIST | gsutil -m cp -I gs://$MY_BUCKET
+#
+#     #   to upload
+#     $ cat $FILE_LIST | gsutil -m cp -I $DIR
+
+# Function definition
+run() {
+  COMMAND=$1
+  echo "$COMMAND"
+  eval $COMMAND
+}
+
+# https://cloud.google.com/compute/docs/regions-zones
+export REGION=${3:-us-central1}
+export LOCATION=$REGION
+
+# You may change this part
+export FILE_LIST="test_scp.tmp train_data.jsonl enwiki-latest-pages-articles.xml.bz2"
+
+export USER_TAG=${2:-tkim}
+export BUCKET_NAME=${3:-public-bucket}
+export UNIQUE_BUCKET_NAME=$USER_TAG-$BUCKET_NAME-$REGION
+# You may change this part
+
+export MY_BUCKET=$UNIQUE_BUCKET_NAME
+
+run "echo $FILE_LIST | gsutil -m cp -I gs://$MY_BUCKET"
