@@ -1,0 +1,46 @@
+#!/bin/bash
+#  gscp
+#    https://cloud.google.com/sdk/gcloud/reference/compute/scp
+#
+#  `gcloud compute copy-files`
+#    copies files between a virtual machine instance and your local machine
+#    using the scp command.
+#   Examples:
+#     # From a VM's directory to your local host
+#     $ gcloud compute copy-files example-instance:~/REMOTE-DIR ~/LOCAL-DIR --zone=us-central1-a
+#
+#     # From your local host to a VM
+#     $ gcloud compute copy-files ~/LOCAL-FILE-1 ~/LOCAL-FILE-2 example-instance:~/REMOTE-DIR --zone=us-central1-a
+
+# Function definition
+run() {
+  COMMAND=$1
+  echo "$COMMAND"
+  eval $COMMAND
+}
+
+PROJECT_ID=$(gcloud config list --format 'value(core.project)')
+if [[ -z "$PROJECT_ID" ]]; then
+  echo "PROJECT_ID is empty because the core.project property is not displayed."
+  echo "This means that you haven't explicitly set a default project for the gcloud CLI."
+  echo "Please set your project by running:"
+  echo "  $ gcloud config set project PROJECT_ID"
+  echo "To check the PROJECT_ID, go to Google Cloud Console and click Navigation Menu."
+  echo "Go to Cloud overview > Dashboard and check Project ID in the Project Info card."
+  exit 1
+fi
+
+# https://cloud.google.com/compute/docs/regions-zones
+REGION=${3:-us-central1}
+ZONE=a
+LOCATION=$REGION-$ZONE
+
+# You may change this part
+INSTANCE_NAME=g2-1xl4-${REGION}
+PATH_TO_FILE="~/downloads/train_data.jsonl"
+SOURCE=$INSTANCE_NAME:$PATH_TO_FILE
+
+TARGET="."
+# You may change this part
+
+run "gcloud compute scp $SOURCE $TARGET --project=$PROJECT_ID --zone=$LOCATION"
