@@ -1,3 +1,4 @@
+#!/bin/bash
 # connect_a_vm_to_firewall_rules
 #
 # Run this after creating a VM and firewall rules.
