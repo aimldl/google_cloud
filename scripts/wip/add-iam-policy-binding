@@ -8,8 +8,7 @@ run() {
   eval $COMMAND
 }
 
-
-export PROJECT_ID=$(gcloud config list --format 'value(core.project)')
+PROJECT_ID=$(gcloud config list --format 'value(core.project)')
 if [[ -z "$PROJECT_ID" ]]; then
   echo "PROJECT_ID is empty because the core.project property is not displayed."
   echo "This means that you haven't explicitly set a default project for the gcloud CLI."
@@ -20,14 +19,14 @@ if [[ -z "$PROJECT_ID" ]]; then
   exit 1
 fi
 
-export TYPE=user
-export PRINCIPAL=admin@thekim.altostrat.com
-export MEMBER=$TYPE:$PRINCIPAL
+TYPE=user
+PRINCIPAL=admin@thekim.altostrat.com
+MEMBER=$TYPE:$PRINCIPAL
 
 # https://cloud.google.com/iam/docs/understanding-roles#compute.instanceAdmin.v1
-export ROLE=roles/compute.instanceAdmin.v1
+ROLE=roles/compute.instanceAdmin.v1
 
-export SERVICE_ACCOUNT_EMAIL=$(gcloud iam service-accounts list \
+SERVICE_ACCOUNT_EMAIL=$(gcloud iam service-accounts list \
     --format='value(email)' \
     --project=$PROJECT_ID \
     --filter='displayName: Custom Service Account')
