@@ -21,21 +21,21 @@ run() {
 }
 
 # https://cloud.google.com/compute/docs/regions-zones
-export REGION=${3:-us-central1}
-export ZONE=a
-export LOCATION=$REGION-$ZONE
+REGION=${3:-us-central1}
+ZONE=a
+LOCATION=$REGION-$ZONE
 
 # You may change this part
-export DEFAULT_SOURCE=./train_data.jsonl
+DEFAULT_SOURCE=./train_data.jsonl
 
-export USER_TAG=tkim
-export BUCKET_NAME=${3:-public-bucket}
-export UNIQUE_BUCKET_NAME=$USER_TAG-$BUCKET_NAME-$LOCATION
-export INSTANCE_NAME=test
-export DEFAULT_TARGET=$INSTANCE_NAME:~/temp
+USER_TAG=tkim
+BUCKET_NAME=${3:-public-bucket}
+UNIQUE_BUCKET_NAME=$USER_TAG-$BUCKET_NAME-$LOCATION
+INSTANCE_NAME=test
+DEFAULT_TARGET=$INSTANCE_NAME:~/temp
 # You may change this part
 
-export SOURCE=${1:-$DEFAULT_SOURCE}
-export TARGET=${2:-$DEFAULT_TARGET}
+SOURCE=${1:-$DEFAULT_SOURCE}
+TARGET=${2:-$DEFAULT_TARGET}
 
 run "gcloud compute copy-files $SOURCE $TARGET --zone=$LOCATION"
