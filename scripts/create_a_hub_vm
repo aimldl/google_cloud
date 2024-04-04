@@ -1,3 +1,4 @@
+#!/bin/bash
 # create_a_hub_vm
 #
 #   Prerequisite: run create_a_vpc_network_etc before running this
