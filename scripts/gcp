@@ -1,5 +1,5 @@
 #!/bin/bash
-#  gcp gsutil cp
+#  gcp (gsutil cp)
 #    https://cloud.google.com/storage/docs/gsutil/commands/cp
 #
 #  `gsutil cps`
