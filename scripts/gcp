@@ -32,15 +32,18 @@ run() {
   eval $COMMAND
 }
 
+# You may change this part
+# Tip. Create a temp file and copy it first as a test.
+touch file.tmp
+
+FILE_LIST="file.tmp"  # for a test
+#FILE_LIST="file.tmp train_data.jsonl enwiki-latest-pages-articles.xml.bz2"
+
+#USER_TAG=${1:-tkim}
+USER_TAG=${1:-slurm0}
+BUCKET_NAME=${2:-object-storage}
 # https://cloud.google.com/compute/docs/regions-zones
 REGION=${3:-us-central1}
-LOCATION=$REGION
-
-# You may change this part
-FILE_LIST="test_scp.tmp train_data.jsonl enwiki-latest-pages-articles.xml.bz2"
-
-USER_TAG=${2:-tkim}
-BUCKET_NAME=${3:-public-bucket}
 UNIQUE_BUCKET_NAME=$USER_TAG-$BUCKET_NAME-$REGION
 # You may change this part
 
