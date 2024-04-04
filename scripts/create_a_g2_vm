@@ -24,12 +24,12 @@ echo ""
 }
 
 # https://cloud.google.com/compute/docs/regions-zones
-export REGION=${1:-us-central1}
+REGION=${1:-us-central1}
 echo "REGION=$REGION"
 echo "Setting the associated variables automatically..."
 
-export INSTANCE_NAME=g2-1xl4-${REGION}
-export PROJECT_ID=$(gcloud config list --format 'value(core.project)')
+INSTANCE_NAME=g2-1xl4-${REGION}
+PROJECT_ID=$(gcloud config list --format 'value(core.project)')
 if [[ -z "$PROJECT_ID" ]]; then
   echo "PROJECT_ID is empty because the core.project property is not displayed."
   echo "This means that you haven't explicitly set a default project for the gcloud CLI."
@@ -40,27 +40,27 @@ if [[ -z "$PROJECT_ID" ]]; then
   exit 1
 fi
 
-export ZONE=a
-export LOCATION=$REGION-$ZONE
-export MACHINE_TYPE=g2-standard-96
-export SUBNET=custom-subnet-${REGION}
-export TAG_NAME_HTTP=allow-http-${REGION}  # For readability & convenience
-export TAG_NAME_SSH=allow-ssh-${REGION}    # For readability & convenience
+ZONE=a
+LOCATION=$REGION-$ZONE
+MACHINE_TYPE=g2-standard-96
+SUBNET=custom-subnet-${REGION}
+TAG_NAME_HTTP=allow-http-${REGION}  # For readability & convenience
+TAG_NAME_SSH=allow-ssh-${REGION}    # For readability & convenience
 # https://cloud.google.com/compute/docs/accelerator-optimized-machines#g2-standard-vms
-export GPU_MODEL=nvidia-l4
-export GPU_COUNT=8
-export ACCELERATOR=type=$GPU_MODEL,count=$GPU_COUNT
+GPU_MODEL=nvidia-l4
+GPU_COUNT=8
+ACCELERATOR=type=$GPU_MODEL,count=$GPU_COUNT
 
 # For a Deep Learning VM image
-export BOOT_DISK_SIZE=500                  # in GB, It should be at least 40GB
-export IMAGE_FAMILY=pytorch-latest-gpu
-export IMAGE_PROJECT=deeplearning-platform-release
+BOOT_DISK_SIZE=500                  # in GB, It should be at least 40GB
+IMAGE_FAMILY=pytorch-latest-gpu
+IMAGE_PROJECT=deeplearning-platform-release
 
 # create-disk
-export USER_TAG=${2:-tkim}
-export DATA_DISK_NAME=data-disk-$USER_TAG-$LOCATION
-export DISK_TYPE=pd-standard
-export DATA_DISK_SIZE=600GB
+USER_TAG=${2:-tkim}
+DATA_DISK_NAME=data-disk-$USER_TAG-$LOCATION
+DISK_TYPE=pd-standard
+DATA_DISK_SIZE=600GB
 
 # Create a VM instance using the created network and subnet
 print_warning
