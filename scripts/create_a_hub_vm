@@ -10,12 +10,12 @@ run() {
 }
 
 # https://cloud.google.com/compute/docs/regions-zones
-export REGION=${1:-us-central1}
+REGION=${1:-us-central1}
 echo "REGION=$REGION"
 echo "Setting the associated variables automatically..."
 
-export INSTANCE_NAME=hub-${REGION}
-export PROJECT_ID=$(gcloud config list --format 'value(core.project)')
+INSTANCE_NAME=hub-${REGION}
+PROJECT_ID=$(gcloud config list --format 'value(core.project)')
 if [[ -z "$PROJECT_ID" ]]; then
   echo "PROJECT_ID is empty because the core.project property is not displayed."
   echo "This means that you haven't explicitly set a default project for the gcloud CLI."
@@ -26,19 +26,19 @@ if [[ -z "$PROJECT_ID" ]]; then
   exit 1
 fi
 
-export ZONE=b
-export LOCATION=$REGION-$ZONE
-export MACHINE_TYPE=e2-medium
+ZONE=b
+LOCATION=$REGION-$ZONE
+MACHINE_TYPE=e2-medium
 # https://cloud.google.com/compute/docs/images#list_of_public_images_available_on
 #  $ gcloud compute images list | grep ubuntu-2004
-export IMAGE_FAMILY=ubuntu-2004-lts
-#export IMAGE_FAMILY=ubuntu-minimal-2204-lts
-export IMAGE_PROJECT=ubuntu-os-cloud
-export SUBNET=custom-subnet-${REGION}
+IMAGE_FAMILY=ubuntu-2004-lts
+#IMAGE_FAMILY=ubuntu-minimal-2204-lts
+IMAGE_PROJECT=ubuntu-os-cloud
+SUBNET=custom-subnet-${REGION}
 
 # For readability & convenience
-export TAG_NAME_HTTP=allow-http-${REGION}
-export TAG_NAME_SSH=allow-ssh-${REGION}
+TAG_NAME_HTTP=allow-http-${REGION}
+TAG_NAME_SSH=allow-ssh-${REGION}
 # For readability & convenience
 
 # Create a VM instance using the created network and subnet
