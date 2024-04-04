@@ -1,0 +1,33 @@
+#!/bin/bash
+# gssh_slurm0_login_node
+
+# Function definition
+run() {
+  COMMAND=$1
+  echo "$COMMAND"
+  eval $COMMAND
+}
+
+INSTANCE_NAME=${1:-slurm0-login-fnwh4423-001}
+echo "INSTANCE_NAME=$INSTANCE_NAME"
+
+# https://cloud.google.com/compute/docs/regions-zones
+REGION=${2:-us-central1}
+ZONE=a
+LOCATION=$REGION-$ZONE
+echo "REGION=$REGION"
+
+PROJECT_ID=${3:-injae-sandbox-340804}
+echo "PROJECT_ID=$PROJECT_ID"
+#PROJECT_ID=$(gcloud config list --format 'value(core.project)')
+if [[ -z "$PROJECT_ID" ]]; then
+  echo "PROJECT_ID is empty because the core.project property is not displayed."
+  echo "This means that you haven't explicitly set a default project for the gcloud CLI."
+  echo "Please set your project by running:"
+  echo "  $ gcloud config set project PROJECT_ID"
+  echo "To check the PROJECT_ID, go to Google Cloud Console and click Navigation Menu."
+  echo "Go to Cloud overview > Dashboard and check Project ID in the Project Info card."
+  exit 1
+fi
+
+run "gcloud compute ssh $INSTANCE_NAME --project=$PROJECT_ID --zone=$LOCATION"
