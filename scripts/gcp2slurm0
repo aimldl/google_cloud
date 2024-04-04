@@ -33,11 +33,7 @@ run() {
 }
 
 # You may change this part
-# Tip. Create a temp file and copy it first as a test.
-touch file.tmp
-
-FILE_LIST="file.tmp"  # for a test
-#FILE_LIST="file.tmp train_data.jsonl enwiki-latest-pages-articles.xml.bz2"
+FILE=train_data.jsonl
 
 #USER_TAG=${1:-tkim}
 USER_TAG=${1:-slurm0}
@@ -48,5 +44,16 @@ UNIQUE_BUCKET_NAME=$USER_TAG-$BUCKET_NAME-$REGION
 # You may change this part
 
 MY_BUCKET=$UNIQUE_BUCKET_NAME
+run "gsutil cp $FILE gs://$MY_BUCKET"
 
-run "echo $FILE_LIST | gsutil -m cp -I gs://$MY_BUCKET"
+# TODO: troubleshoot
+# Tip. Create a temp file and copy it first as a test.
+touch file.tmp
+#FILE_LIST="file.tmp"  # for a test
+FILE_LIST="file.tmp train_data.jsonl"
+#FILE_LIST="file.tmp train_data.jsonl enwiki-latest-pages-articles.xml.bz2"
+
+#run "cat $FILE_LIST | gsutil -m cp -I gs://$MY_BUCKET"
+# If you experience problems with multiprocessing on MacOS, they might be related to https://bugs.python.org/issue33725. You can disable multiprocessing by editing your .boto config or by adding the following flag to your command: `-o "GSUtil:parallel_process_count=1"`. Note that multithreading is still available even if you disable multiprocessing.
+# InvalidUrlError: Unrecognized scheme "{"id": "73822620", "revid": "39361517", "url": "https"
+# CommandException: 1 file/object could not be transferred.
