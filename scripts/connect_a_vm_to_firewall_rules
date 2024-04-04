@@ -15,13 +15,13 @@ run() {
 }
 
 # https://cloud.google.com/compute/docs/regions-zones
-export INSTANCE_NAME=${1:-g2-test}
-export REGION=${2:-us-central1}
+INSTANCE_NAME=${1:-g2-test}
+REGION=${2:-us-central1}
 
 echo "REGION=$REGION"
 echo "Handling the associated variables automatically..."
-export ZONE=$REGION-a
-export PROJECT_ID=$(gcloud config list --format 'value(core.project)')
+ZONE=$REGION-a
+PROJECT_ID=$(gcloud config list --format 'value(core.project)')
 if [[ -z "$PROJECT_ID" ]]; then
   echo "PROJECT_ID is empty because the core.project property is not displayed."
   echo "This means that you haven't explicitly set a default project for the gcloud CLI."
@@ -33,10 +33,10 @@ if [[ -z "$PROJECT_ID" ]]; then
 fi
 
 # gcloud compute instances describe INSTANCE_NAME --format="value(tags.items)"
-export TAG_NAME_HTTP=http-${REGION}
-export TAG_NAME_SSH=ssh-${REGION}
-export TAG_NAME=allow-http-ssh-rdp-$REGION
-export TAG_NAME=allow-tcp-udp-icmp-$REGION
+TAG_NAME_HTTP=http-${REGION}
+TAG_NAME_SSH=ssh-${REGION}
+TAG_NAME=allow-http-ssh-rdp-$REGION
+TAG_NAME=allow-tcp-udp-icmp-$REGION
 
 #   https://cloud.google.com/sdk/gcloud/reference/compute/instances/add-tags
 echo ""
