@@ -1,0 +1,14 @@
+#!/bin/bash
+# check_download_status
+
+# Function definition
+run() {
+  COMMAND=$1
+  echo "$COMMAND"
+  eval $COMMAND
+}
+
+# 2. Check the download status
+# Print the 2nd last line because the last line is broken like this.
+#   1668150K .......... .......... .......... ..........
+run "tail -n 2 nohup.out | head -1"
