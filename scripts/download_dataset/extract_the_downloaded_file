@@ -1,0 +1,17 @@
+#!/bin/bash
+# extract_the_downloaded_file
+
+# Function definition
+run() {
+  COMMAND=$1
+  echo "$COMMAND"
+  eval $COMMAND
+}
+
+# 3. Extract raw data
+echo ""
+echo "Extracting the downloaded file ..."
+run "pip install wikiextractor"
+run "nohup python -m wikiextractor.WikiExtractor enwiki-latest-pages-articles.xml.bz2 --json &"
+run "tree -d text/"  # to see the directory structure
+run "nohup find text -name 'wiki_*' -exec cat {} \; > train_data.jsonl &"
