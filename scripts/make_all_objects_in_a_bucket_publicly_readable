@@ -9,7 +9,7 @@ run() {
   eval $COMMAND
 }
 
-export PROJECT_ID=$(gcloud config list --format 'value(core.project)')
+PROJECT_ID=$(gcloud config list --format 'value(core.project)')
 if [[ -z "$PROJECT_ID" ]]; then
   echo "PROJECT_ID is empty because the core.project property is not displayed."
   echo "This means that you haven't explicitly set a default project for the gcloud CLI."
@@ -19,13 +19,13 @@ if [[ -z "$PROJECT_ID" ]]; then
   echo "Go to Cloud overview > Dashboard and check Project ID in the Project Info card."
   exit 1
 fi
-export USER_TAG=${2:-tkim}
+USER_TAG=${2:-tkim}
 # https://cloud.google.com/compute/docs/regions-zones
-export REGION=${1:-us-central1}
+REGION=${1:-us-central1}
 echo "REGION=$REGION"
-export LOCATION=$REGION
-export BUCKET_NAME=${3:-public-bucket}
-export UNIQUE_BUCKET_NAME=$USER_TAG-$BUCKET_NAME-$LOCATION
+LOCATION=$REGION
+BUCKET_NAME=${3:-public-bucket}
+UNIQUE_BUCKET_NAME=$USER_TAG-$BUCKET_NAME-$LOCATION
 
 # https://cloud.google.com/storage/docs/access-control/making-data-public#buckets
 echo "Making all objects in a bucket publicly readable ..."
