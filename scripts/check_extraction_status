@@ -1,0 +1,14 @@
+#!/bin/bash
+#  check_extraction_status
+
+# Function definition
+run() {
+  COMMAND=$1
+  echo "$COMMAND"
+  eval $COMMAND
+}
+
+# 4. Check the status of extraction
+# The files are extracted in sub-directory `text`
+run "tail -n 1 nohup.out"
+run "tree -d text"
