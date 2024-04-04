@@ -1,3 +1,4 @@
+#!/bin/bash
 # create_a_vpc_network_etc
 #
 
@@ -9,10 +10,10 @@ run() {
 }
 
 # https://cloud.google.com/compute/docs/regions-zones
-export REGION=${1:-us-central1}
+REGION=${1:-us-central1}
 echo "REGION=$REGION"
 echo "Handling the associated variables automatically..."
-export PROJECT_ID=$(gcloud config list --format 'value(core.project)')
+PROJECT_ID=$(gcloud config list --format 'value(core.project)')
 if [[ -z "$PROJECT_ID" ]]; then
   echo "PROJECT_ID is empty because the core.project property is not displayed."
   echo "This means that you haven't explicitly set a default project for the gcloud CLI."
@@ -23,21 +24,21 @@ if [[ -z "$PROJECT_ID" ]]; then
   exit 1
 fi
 
-export NETWORK=custom-vpcnet-${REGION}
-export SUBNET=custom-subnet-${REGION}
-export SUBNET_RANGE=10.128.0.0/20
+NETWORK=custom-vpcnet-${REGION}
+SUBNET=custom-subnet-${REGION}
+SUBNET_RANGE=10.128.0.0/20
 # Example: 10.138.0.0/20, 10.132.0.0/20, 10.128.0.0/20
 
-export FIREWALL_NAME_HTTP=allow-http-traffic-${REGION}
-export TAG_NAME_HTTP=allow-http-${REGION}
-export FIREWALL_NAME_SSH=allow-ssh-traffic-${REGION}
-export TAG_NAME_SSH=allow-ssh-${REGION}
-export FIREWALL_PRIORITY=1000
-# export IP_RANGE=  # optional
+FIREWALL_NAME_HTTP=allow-http-traffic-${REGION}
+TAG_NAME_HTTP=allow-http-${REGION}
+FIREWALL_NAME_SSH=allow-ssh-traffic-${REGION}
+TAG_NAME_SSH=allow-ssh-${REGION}
+FIREWALL_PRIORITY=1000
+# IP_RANGE=  # optional
 
-export SERVICE_ACCOUNT_NAME=custom-service-account
-export SECRET_NAME=custom-secret
-export SERVICE_ACCOUNT_KEY_NAME=custom-key.json
+SERVICE_ACCOUNT_NAME=custom-service-account
+SECRET_NAME=custom-secret
+SERVICE_ACCOUNT_KEY_NAME=custom-key.json
 
 echo ""
 echo "Create a network $NETWORK ..."
