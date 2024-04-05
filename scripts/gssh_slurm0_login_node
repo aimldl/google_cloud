@@ -8,7 +8,7 @@ run() {
   eval $COMMAND
 }
 
-INSTANCE_NAME=${1:-slurm0-login-fnwh4423-001}
+INSTANCE_NAME=${1:-slurm0-login-ikvdrqzm-001}
 echo "INSTANCE_NAME=$INSTANCE_NAME"
 
 # https://cloud.google.com/compute/docs/regions-zones
