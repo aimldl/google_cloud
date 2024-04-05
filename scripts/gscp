@@ -1,6 +1,7 @@
 #!/bin/bash
 #  gscp
 #    https://cloud.google.com/sdk/gcloud/reference/compute/scp
+#    https://cloud.google.com/compute/docs/instances/transfer-files
 #
 #  `gcloud compute copy-files`
 #    copies files between a virtual machine instance and your local machine
