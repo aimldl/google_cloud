@@ -14,7 +14,8 @@ echo "REGION=$REGION"
 echo "Setting the associated variables automatically..."
 
 INSTANCE_NAME=g2-1xl4-${REGION}
-PROJECT_ID=$(gcloud config list --format 'value(core.project)')
+PROJECT_ID=llm-env
+#PROJECT_ID=$(gcloud config list --format 'value(core.project)')
 if [[ -z "$PROJECT_ID" ]]; then
   echo "PROJECT_ID is empty because the core.project property is not displayed."
   echo "This means that you haven't explicitly set a default project for the gcloud CLI."
