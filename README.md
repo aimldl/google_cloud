@@ -1,7 +1,8 @@
 # Google Cloud
 * Created: 2021-05-17 (Mon)
 * Updated: 2024-12-10 (Tue)
- 
+
+## Name change
 - `Google Cloud Platform (GCP)` is now called `Google Cloud`.
 - The mobile app `Cloud Console app` is renamed to `Google Cloud app`.
 source: [Introducing a new homepage for Google Cloud](https://cloud.google.com/blog/topics/developers-practitioners/introducing-new-homepage-google-cloud)
