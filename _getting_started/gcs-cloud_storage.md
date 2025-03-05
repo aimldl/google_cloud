@@ -13,17 +13,17 @@ GCS
 ### Using CLI commands
 Create a bucket
 ```bash
-$ gsutil mb -l us-central1 gs://thekim-deepseek-r1-test
+$ gsutil mb -l us-central1 gs://bucket-name-should-be-unique
 ```
 ```bash
-Creating gs://thekim-deepseek-r1-test/...
+Creating gs://bucket-name-should-be-unique/...
 $
 ```
 To verify
 ```bash
-$ gsutil ls | grep deepseek
+$ gsutil ls | grep bucket
   ...
-gs://thekim-deepseek-r1-test/
+gs://bucket-name-should-be-unique/
 $ 
 ```
 ### Using GUI or Google Cloud Platform Console
