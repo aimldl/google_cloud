@@ -1,0 +1,27 @@
+#!/bin/bash
+# deploy2cloudrun
+
+export NETWORK_NAME="easy-alloydb-vpc"
+export SUBNET_NAME="easy-alloydb-subnet"
+
+export YOUR_PASSWORD="alloydb"
+export PRIVATE_IP_HOST=""
+export PORT="5432"
+
+# Sanitize the copied GCP host string by stripping any appended port.
+# Example: "10.182.0.13:5432" becomes "10.182.0.13".
+# This prevents duplicate port errors when constructing the DATABASE_URL.
+export PRIVATE_IP_HOST="${PRIVATE_IP_HOST%:*}"
+
+export GEMINI_API_KEY=""
+export DATABASE_URL="postgresql+pg8000://postgres:${YOUR_PASSWORD}@${PRIVATE_IP_HOST}:${PORT}/postgres"
+export GCS_BUCKET_NAME=""
+
+gcloud beta run deploy neighbor-loop \
+   --source . \
+   --region=us-central1 \
+   --network=${NETWORK_NAME} \
+   --subnet=${SUBNET_NAME} \
+   --allow-unauthenticated \
+   --vpc-egress=all-traffic \
+   --set-env-vars GEMINI_API_KEY=${GEMINI_API_KEY},DATABASE_URL=${DATABASE_URL},GCS_BUCKET_NAME=${GCS_BUCKET_NAME}
